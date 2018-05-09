@@ -1,18 +1,18 @@
 <?php
-require_once('inc/auth.class.php');
+require_once('inc/garage.class.php');
 
-$auth = new Auth();
+$garage = new Garage();
 
-if ($auth->isConfigured()) {
-  if (!$auth->isValidSession()) {
+if ($garage->isConfigured()) {
+  if (!$garage->isValidSession()) {
     header('Location: login.php');
     exit;
-  } elseif (!$auth->isAdmin()) {
+  } elseif (!$garage->isAdmin()) {
     header('Location: ' . dirname($_SERVER['PHP_SELF']));
     exit;
   }
 } else {
-  header('Location: auth.php');
+  header('Location: setup.php');
   exit;
 }
 ?>
@@ -43,7 +43,7 @@ if ($auth->isConfigured()) {
         </thead>
         <tbody>
 <?php
-foreach ($auth->getUsers() as $pin => $user) {
+foreach ($garage->getUsers() as $pin => $user) {
   echo "          <tr>" . PHP_EOL;
   echo "            <th>{$pin}</th>" . PHP_EOL;
   echo "            <td>{$user['first_name']}</td>" . PHP_EOL;

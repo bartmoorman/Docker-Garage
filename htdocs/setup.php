@@ -1,10 +1,10 @@
 <?php
-require_once('inc/auth.class.php');
+require_once('inc/garage.class.php');
 
-$auth = new Auth();
+$garage = new Garage();
 
-if ($auth->isConfigured()) {
-  if (!$auth->isValidSession()) {
+if ($garage->isConfigured()) {
+  if (!$garage->isValidSession()) {
     header('Location: login.php');
     exit;
   } else {

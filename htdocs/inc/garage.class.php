@@ -1,5 +1,5 @@
 <?php
-class Auth {
+class Garage {
   private $authFile = '/config/credentials.json';
   private $credentials = array();
 
