@@ -15,11 +15,10 @@ switch ($_REQUEST['action']) {
     break;
   case 'create':
     if (!$garage->isConfigured() || $garage->isAdmin()) {
-      if (!empty($_REQUEST['pincode']) && !empty($_REQUEST['first_name']) && !empty($_REQUEST['last_name'])) {
-        $role = !empty($_REQUEST['role']) ? $_REQUEST['role'] : null;
+      if (!empty($_REQUEST['pincode']) && !empty($_REQUEST['first_name']) && !empty($_REQUEST['last_name']) && !empty($_REQUEST['role'])) {
         $begin = !empty($_REQUEST['begin']) ? $_REQUEST['begin'] : null;
         $end = !empty($_REQUEST['end']) ? $_REQUEST['end'] : null;
-        $output['success'] = $garage->createUser($_REQUEST['pincode'], $_REQUEST['first_name'], $_REQUEST['last_name'], $role, $begin, $end);
+        $output['success'] = $garage->createUser($_REQUEST['pincode'], $_REQUEST['first_name'], $_REQUEST['last_name'], $_REQUEST['role'], $begin, $end);
       } else {
         $output['success'] = false;
       }
