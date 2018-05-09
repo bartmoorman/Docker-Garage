@@ -16,7 +16,7 @@ if ($garage->isConfigured()) {
 <!DOCTYPE html>
 <html lang='en'>
   <head>
-    <title>Garage</title>
+    <title>Garage - Setup</title>
     <meta charset='utf-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
     <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' integrity='sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm' crossorigin='anonymous'>
@@ -37,6 +37,7 @@ if ($garage->isConfigured()) {
                   <input class='form-control' type='tel' name='pincode' placeholder='Numeric Pin Code' maxlength='6' pattern='[0-9]{6}' required>
                   <input class='form-control' type='text' name='first_name' placeholder='First Name' required>
                   <input class='form-control' type='text' name='last_name' placeholder='Last Name' required>
+                  <input class='form-control' type='email' name='email' placeholder='Email' required>
                   <input class='form-control' type='hidden' name='role' value='admin'>
                 </div>
               </div>
@@ -55,7 +56,7 @@ if ($garage->isConfigured()) {
       $(document).ready(function() {
         $('#setup').submit(function(event) {
           event.preventDefault();
-          $.getJSON('src/user.php', {"action": "create", "pincode": $('#setup input[name=pincode]').val(), "first_name": $('#setup input[name=first_name]').val(), "last_name": $('#setup input[name=last_name]').val(), "role": $('#setup input[name=role]').val()})
+          $.getJSON('src/user.php', {"action": "create", "pincode": $('#setup input[name=pincode]').val(), "first_name": $('#setup input[name=first_name]').val(), "last_name": $('#setup input[name=last_name]').val(), "email": $('#setup input[name=email]').val(), "role": $('#setup input[name=role]').val()})
             .done(function(data) {
               if (data.success) {
                 location.href = '<?php echo dirname($_SERVER['PHP_SELF']) ?>';

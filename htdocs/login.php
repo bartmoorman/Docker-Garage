@@ -16,7 +16,7 @@ if ($garage->isConfigured()) {
 <!DOCTYPE html>
 <html class='h-100' lang='en'>
   <head>
-    <title>Log in</title>
+    <title>Garage - Login</title>
     <meta charset='utf-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
     <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' integrity='sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm' crossorigin='anonymous'>
@@ -45,22 +45,22 @@ if ($garage->isConfigured()) {
           <div class='col-auto mb-4 mt-1 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
         </div>
         <div class='row justify-content-center'>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-primary btn-lg rounded-circle'>1</button></div>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-primary btn-lg rounded-circle'>2</button></div>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-primary btn-lg rounded-circle'>3</button></div>
+          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>1</button></div>
+          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>2</button></div>
+          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>3</button></div>
         </div>
         <div class='row justify-content-center'>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-primary btn-lg rounded-circle'>4</button></div>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-primary btn-lg rounded-circle'>5</button></div>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-primary btn-lg rounded-circle'>6</button></div>
+          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>4</button></div>
+          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>5</button></div>
+          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>6</button></div>
         </div>
         <div class='row justify-content-center'>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-primary btn-lg rounded-circle'>7</button></div>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-primary btn-lg rounded-circle'>8</button></div>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-primary btn-lg rounded-circle'>9</button></div>
+          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>7</button></div>
+          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>8</button></div>
+          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>9</button></div>
         </div>
         <div class='row justify-content-center'>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-primary btn-lg rounded-circle'>0</button></div>
+          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>0</button></div>
         </div>
       </div>
     </div>
@@ -73,7 +73,7 @@ if ($garage->isConfigured()) {
 
         $('#pincode button').click(function() {
           pincode = pincode + $(this).text().toString();
-          $(`#pincode span:eq(${pincode.length - 1})`).addClass('bg-primary');
+          $(`#pincode span:eq(${pincode.length - 1})`).addClass('bg-success');
 
           if (pincode.length == 6) {
             $('#pincode button').prop('disabled', true);
@@ -84,7 +84,7 @@ if ($garage->isConfigured()) {
                   location.href = '<?php echo dirname($_SERVER['PHP_SELF']) ?>';
                 } else {
                   pincode = '';
-                  $('#pincode span').removeClass('bg-primary');
+                  $('#pincode span').removeClass('bg-success');
                   $('#pincode button').prop('disabled', false);
                 }
               })
