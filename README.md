@@ -1,3 +1,5 @@
+## This is designed for a Raspberry Pi Zero W
+
 ### Usage
 ```
 docker run \

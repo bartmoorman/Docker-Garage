@@ -23,9 +23,6 @@ if ($garage->isConfigured()) {
     <link rel='stylesheet' href='//bootswatch.com/4/darkly/bootstrap.min.css'>
     <link rel='stylesheet' href='//use.fontawesome.com/releases/v5.0.12/css/all.css' integrity='sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9' crossorigin='anonymous'>
     <style>
-      #pincode {
-        display: block;
-      }
       #pincode span {
         width: 15px;
         height: 15px;
@@ -36,7 +33,7 @@ if ($garage->isConfigured()) {
   <body class='h-100'>
     <div class='d-flex justify-content-center h-100' id='pincode'>
       <div class='align-self-center'>
-        <div class='row' justify-content-center>
+        <div class='row justify-content-center'>
           <div class='col-auto mb-4 mt-1 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
           <div class='col-auto mb-4 mt-1 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
           <div class='col-auto mb-4 mt-1 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
