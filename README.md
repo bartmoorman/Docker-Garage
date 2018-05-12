@@ -7,6 +7,7 @@ docker run \
 --name garage \
 --publish 8440:8440 \
 --env "HTTPD_SERVERNAME=**sub.do.main**" \
+--volume /sys:/sys \
 --volume garage-config:/config \
 bmoorman/garage:latest
 ```

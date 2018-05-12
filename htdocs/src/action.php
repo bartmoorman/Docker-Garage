@@ -5,7 +5,7 @@ $garage = new Garage();
 
 $output = array('success' => null);
 
-switch ($_REQUEST['action']) {
+switch ($_REQUEST['func']) {
   case 'validate':
     if (!empty($_REQUEST['pincode'])) {
       $output['success'] = $garage->authenticateSession($_REQUEST['pincode']);
@@ -44,6 +44,17 @@ switch ($_REQUEST['action']) {
         $output['success'] = true;
       } else {
       $output['success'] = false;
+      }
+    } else {
+      $output['success'] = false;
+    }
+    break;
+  case 'trigger';
+    if ($garage->isValidSession()) {
+      if ($garage->doTrigger()) {
+        $output['success'] = true;
+      } else {
+        $output['success'] = false;
       }
     } else {
       $output['success'] = false;

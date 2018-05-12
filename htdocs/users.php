@@ -27,9 +27,8 @@ if ($garage->isConfigured()) {
     <link rel='stylesheet' href='//use.fontawesome.com/releases/v5.0.12/css/all.css' integrity='sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9' crossorigin='anonymous'>
   </head>
   <body>
-    <nav class='navbar'></nav>
     <div class='container' id='users'>
-      <table class='table table-striped table-hover table-sm'>
+      <table class='table table-striped table-hover table-sm mt-3'>
         <thead>
           <tr>
             <th>Pin</th>
@@ -54,8 +53,8 @@ foreach ($garage->getUser() as $pin => $user) {
   echo "            <td>{$user['begin']}</td>" . PHP_EOL;
   echo "            <td>{$user['end']}</td>" . PHP_EOL;
   echo "            <td>" . PHP_EOL;
-  echo "              <button type='button' class='btn btn-sm btn-outline-info' data-toggle='modal' data-target='#editModal' data-pincode='{$pin}'>Edit</button>" . PHP_EOL;
-  echo "              <button type='button' class='btn btn-sm btn-outline-danger' data-pincode='{$pin}'>Delete</button>" . PHP_EOL;
+  echo "              <button type='button' class='btn btn-sm btn-outline-info' id='edit' data-toggle='modal' data-target='#editModal' data-pincode='{$pin}'>Edit</button>" . PHP_EOL;
+  echo "              <button type='button' class='btn btn-sm btn-outline-danger' id='delete' data-pincode='{$pin}'>Delete</button>" . PHP_EOL;
   echo "            </td>" . PHP_EOL;
   echo "          </tr>" . PHP_EOL;
 }
@@ -99,12 +98,13 @@ foreach ($garage->getUser() as $pin => $user) {
     <script src='//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js' integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl' crossorigin='anonymous'></script>
     <script>
       $(document).ready(function() {
-        $('#users button[data-toggle=modal]').click(function() {
-          $.getJSON('src/user.php', {"action": "retrieve", "pincode": $(this).data('pincode')})
+        $('#edit').click(function() {
+          pincode=$(this).data('pincode');
+          $.getJSON('src/action.php', {"func": "retrieve", "pincode": pincode})
               .done(function(data) {
                 if (data.success) {
                   user = data.data;
-                  $('#editModal input[name=pincode]').val();
+                  $('#editModal input[name=pincode]').val(pincode);
                   $('#editModal input[name=first_name]').val(user.first_name);
                   $('#editModal input[name=last_name]').val(user.last_name);
                   $('#editModal input[name=email]').val(user.email);
@@ -114,6 +114,9 @@ foreach ($garage->getUser() as $pin => $user) {
               .fail(function(jqxhr, textStatus, errorThrown) {
                 console.log(`validation failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
               });
+        });
+
+        $('#delete').click(function() {
         });
 
         $('#setup').submit(function(event) {

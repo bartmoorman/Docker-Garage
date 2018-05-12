@@ -18,14 +18,14 @@ if ($garage->isConfigured()) {
   <head>
     <title>Garage - Login</title>
     <meta charset='utf-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+    <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no'>
     <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' integrity='sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm' crossorigin='anonymous'>
     <link rel='stylesheet' href='//bootswatch.com/4/darkly/bootstrap.min.css'>
     <link rel='stylesheet' href='//use.fontawesome.com/releases/v5.0.12/css/all.css' integrity='sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9' crossorigin='anonymous'>
     <style>
       #pincode span {
-        width: 15px;
-        height: 15px;
+        width: 27px;
+        height: 27px;
         display: inline-block;
       }
     </style>
@@ -34,30 +34,30 @@ if ($garage->isConfigured()) {
     <div class='d-flex justify-content-center h-100' id='pincode'>
       <div class='align-self-center'>
         <div class='row justify-content-center'>
-          <div class='col-auto mb-4 mt-1 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
-          <div class='col-auto mb-4 mt-1 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
-          <div class='col-auto mb-4 mt-1 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
-          <div class='col-auto mb-4 mt-1 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
-          <div class='col-auto mb-4 mt-1 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
-          <div class='col-auto mb-4 mt-1 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
+          <div class='col-auto mb-4 mt-2 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
+          <div class='col-auto mb-4 mt-2 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
+          <div class='col-auto mb-4 mt-2 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
+          <div class='col-auto mb-4 mt-2 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
+          <div class='col-auto mb-4 mt-2 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
+          <div class='col-auto mb-4 mt-2 mx-2 p-0'><span class='border border-secondary rounded-circle'></span></div>
         </div>
         <div class='row justify-content-center'>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>1</button></div>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>2</button></div>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>3</button></div>
+          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4'><h1 class='my-1'>1</h1></button></div>
+          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4'><h1 class='my-1'>2</h1></button></div>
+          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4'><h1 class='my-1'>3</h1></button></div>
         </div>
         <div class='row justify-content-center'>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>4</button></div>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>5</button></div>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>6</button></div>
+          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4'><h1 class='my-1'>4</h1></button></div>
+          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4'><h1 class='my-1'>5</h1></button></div>
+          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4'><h1 class='my-1'>6</h1></button></div>
         </div>
         <div class='row justify-content-center'>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>7</button></div>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>8</button></div>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>9</button></div>
+          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4'><h1 class='my-1'>7</h1></button></div>
+          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4'><h1 class='my-1'>8</h1></button></div>
+          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4'><h1 class='my-1'>9</h1></button></div>
         </div>
         <div class='row justify-content-center'>
-          <div class='col-auto m-1 p-0'><button class='btn btn-outline-info btn-lg rounded-circle'>0</button></div>
+          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4'><h1 class='my-1'>0</h1></button></div>
         </div>
       </div>
     </div>
@@ -75,18 +75,19 @@ if ($garage->isConfigured()) {
           if (pincode.length == 6) {
             $('#pincode button').prop('disabled', true);
 
-            $.getJSON('src/user.php', {"action": "validate", "pincode": pincode})
+            $.getJSON('src/action.php', {"func": "validate", "pincode": pincode})
               .done(function(data) {
                 if (data.success) {
                   location.href = '<?php echo dirname($_SERVER['PHP_SELF']) ?>';
-                } else {
-                  pincode = '';
-                  $('#pincode span').removeClass('bg-success');
-                  $('#pincode button').prop('disabled', false);
                 }
               })
               .fail(function(jqxhr, textStatus, errorThrown) {
                 console.log(`validation failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
+              })
+              .always(function() {
+                pincode = '';
+                $('#pincode span').removeClass('bg-success');
+                $('#pincode button').prop('disabled', false);
               });
           }
         });

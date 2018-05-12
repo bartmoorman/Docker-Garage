@@ -25,7 +25,7 @@ if ($garage->isConfigured()) {
   </head>
   <body>
     <div class='modal' style='display:block'>
-      <div class='modal-dialog'>
+      <div class='modal-dialog modal-dialog-centered'>
         <div class='modal-content'>
           <form id='setup' method='post'>
             <div class='modal-header'>
@@ -56,7 +56,7 @@ if ($garage->isConfigured()) {
       $(document).ready(function() {
         $('#setup').submit(function(event) {
           event.preventDefault();
-          $.getJSON('src/user.php', {"action": "create", "pincode": $('#setup input[name=pincode]').val(), "first_name": $('#setup input[name=first_name]').val(), "last_name": $('#setup input[name=last_name]').val(), "email": $('#setup input[name=email]').val(), "role": $('#setup input[name=role]').val()})
+          $.getJSON('src/action.php', {"func": "create", "pincode": $('#setup input[name=pincode]').val(), "first_name": $('#setup input[name=first_name]').val(), "last_name": $('#setup input[name=last_name]').val(), "email": $('#setup input[name=email]').val(), "role": $('#setup input[name=role]').val()})
             .done(function(data) {
               if (data.success) {
                 location.href = '<?php echo dirname($_SERVER['PHP_SELF']) ?>';

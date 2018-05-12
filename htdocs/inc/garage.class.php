@@ -2,9 +2,16 @@
 class Garage {
   private $authFile = '/config/credentials.json';
   private $credentials = array();
+  private $openerPin = null;
+  private $sensorPin = null;
+  private $buttonPin = null;
 
   public function __construct() {
     session_start();
+
+    $this->openerPin = strtok(getenv('OPENER_PIN'), ':');
+    $this->sensorPin = strtok(getenv('SENSOR_PIN'), ':');
+    $this->buttonPin = strtok(getenv('BUTTON_PIN'), ':');
 
     if (file_exists($this->authFile) && is_readable($this->authFile)) {
       $this->credentials = json_decode(file_get_contents($this->authFile), true);
@@ -99,6 +106,18 @@ class Garage {
       return $this->credentials[$pincode];
     } else {
       return $this->credentials;
+    }
+    return false;
+  }
+
+  public function doTrigger() {
+    if (file_put_contents("/gpio/{$this->openerPin}/value", 1)) {
+      usleep(500000);
+      if (file_put_contents("/gpio/{$this->openerPin}/value", 0)) {
+        return true;
+      } else {
+        return false;
+      }
     }
     return false;
   }

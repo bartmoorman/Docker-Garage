@@ -1,4 +1,19 @@
 #!/bin/sh
+for PIN in ${OPENER_PIN} ${SENSOR_PIN} ${BUTTON_PIN}; do
+    if [ ! -L /sys/class/gpio/gpio${PIN%:*} ]; then
+      echo ${PIN%:*} > /sys/class/gpio/export
+      usleep 100000
+    fi
+
+    echo ${PIN#*:} > /sys/class/gpio/gpio${PIN%:*}/direction
+
+    chgrp apache $(readlink -f /sys/class/gpio/gpio${PIN%:*})
+    chgrp apache $(readlink -f /sys/class/gpio/gpio${PIN%:*}/device)
+    chgrp apache $(readlink -f /sys/class/gpio/gpio${PIN%:*}/value)
+
+    ln -sf $(readlink -f /sys/class/gpio/gpio${PIN%:*}) /gpio/${PIN%:*}
+done
+
 chown apache: /config
 
 if [ ! -d /config/httpd/ssl ]; then
