@@ -3,17 +3,18 @@ require_once('../inc/garage.class.php');
 
 $garage = new Garage();
 
-$output = array('success' => null);
+$output = array('success' => null, 'message' => null);
 
 switch ($_REQUEST['func']) {
-  case 'validate':
+  case 'validatePinCode':
     if (!empty($_REQUEST['pincode'])) {
       $output['success'] = $garage->authenticateSession($_REQUEST['pincode']);
     } else {
       $output['success'] = false;
+      $output['message'] = 'No pincode supplied';
     }
     break;
-  case 'create':
+  case 'createUser':
     if (!$garage->isConfigured() || $garage->isAdmin()) {
       if (!empty($_REQUEST['pincode']) && !empty($_REQUEST['first_name']) && !empty($_REQUEST['last_name']) && !empty($_REQUEST['email']) && !empty($_REQUEST['role'])) {
         $begin = !empty($_REQUEST['begin']) ? $_REQUEST['begin'] : null;
@@ -21,43 +22,46 @@ switch ($_REQUEST['func']) {
         $output['success'] = $garage->createUser($_REQUEST['pincode'], $_REQUEST['first_name'], $_REQUEST['last_name'], $_REQUEST['email'], $_REQUEST['role'], $begin, $end);
       } else {
         $output['success'] = false;
+        $output['message'] = 'Missing arguments';
       }
     } else {
       $output['success'] = false;
+      $output['message'] = 'Unauthorized';
     }
     break;
-  case 'remove';
+  case 'removeUser';
     if ($garage->isAdmin()) {
-      if (!empty($_REQUEST['pincode'])) {
-        $output['success'] = $garage->removeUser($_REQUEST['pincode']);
+      if (!empty($_REQUEST['user_id'])) {
+        $output['success'] = $garage->removeUser($_REQUEST['user_id']);
       } else {
         $output['success'] = false;
+        $output['message'] = 'No user id supplied';
       }
     } else {
       $output['success'] = false;
+      $output['message'] = 'Unauthorized';
     }
     break;
-  case 'retrieve':
+  case 'userDetails':
     if ($garage->isAdmin()) {
-      if (!empty($_REQUEST['pincode'])) {
-        $output['data'] = $garage->getUser($_REQUEST['pincode']);
+      if (!empty($_REQUEST['user_id'])) {
+        $output['data'] = $garage->getUserDetails($_REQUEST['user_id']);
         $output['success'] = true;
       } else {
-      $output['success'] = false;
+        $output['success'] = false;
+        $output['message'] = 'No user id supplied';
       }
     } else {
       $output['success'] = false;
+      $output['message'] = 'Unauthorized';
     }
     break;
-  case 'trigger';
+  case 'triggerOpener';
     if ($garage->isValidSession()) {
-      if ($garage->doTrigger()) {
-        $output['success'] = true;
-      } else {
-        $output['success'] = false;
-      }
+      $output['success'] = $garage->doTrigger();
     } else {
       $output['success'] = false;
+      $output['message'] = 'Unauthorized';
     }
     break;
 }

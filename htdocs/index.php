@@ -39,7 +39,7 @@ if ($garage->isConfigured()) {
         $('#trigger').click(function() {
           $('#trigger').prop('disabled', true);
 
-          $.getJSON('src/action.php', {"func": "trigger"})
+          $.getJSON('src/action.php', {"func": "triggerOpener"})
               .done(function(data) {
                 if (data.success) {
                   alert('Success!');

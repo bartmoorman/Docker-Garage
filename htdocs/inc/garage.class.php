@@ -1,7 +1,7 @@
 <?php
 class Garage {
-  private $authFile = '/config/credentials.json';
-  private $credentials = array();
+  private $dbFile = '/config/garage.db';
+  private $dbConn = null;
   private $openerPin = null;
   private $sensorPin = null;
   private $buttonPin = null;
@@ -9,62 +9,115 @@ class Garage {
   public function __construct() {
     session_start();
 
+    if (file_exists($this->dbFile) && is_readable($this->dbFile)) {
+      $this->connectDb();
+    } elseif (is_writable(dirname($this->dbFile))) {
+      $this->connectDb();
+      $this->initDb();
+    }
+
     $this->openerPin = strtok(getenv('OPENER_PIN'), ':');
     $this->sensorPin = strtok(getenv('SENSOR_PIN'), ':');
     $this->buttonPin = strtok(getenv('BUTTON_PIN'), ':');
+  }
 
-    if (file_exists($this->authFile) && is_readable($this->authFile)) {
-      $this->credentials = json_decode(file_get_contents($this->authFile), true);
-    }
+  private function connectDb() {
+    $this->dbConn = new SQLite3($this->dbFile);
+    $this->dbConn->busyTimeout(500);
+    $this->dbConn->exec('PRAGMA journal_mode = WAL');
+  }
+
+  private function initDb() {
+    $query = <<<EOQ
+CREATE TABLE `users` (
+  `user_id` INTEGER PRIMARY KEY AUTOINCREMENT,
+  `pincode` INTEGER NOT NULL UNIQUE,
+  `first_name` TEXT NOT NULL,
+  `last_name` TEXT,
+  `email` TEXT,
+  `role` TEXT NOT NULL,
+  `begin` TEXT,
+  `end` TEXT
+)
+EOQ;
+    return $this->dbConn->exec($query);
   }
 
   public function isConfigured() {
-    if (!empty($this->credentials)) {
-      return true;
-    }
-    return false;
-  }
-
-  public function isConfigurable() {
-    if ((file_exists($this->authFile) && is_writable($this->authFile)) || is_writable(dirname($this->authFile))) {
+    $query = <<<EOQ
+SELECT COUNT(*)
+FROM `users`
+EOQ;
+    if ($this->dbConn->querySingle($query)) {
       return true;
     }
     return false;
   }
 
   public function isValidSession() {
-    if (array_key_exists('authenticated', $_SESSION) && $this->isValidPinCode($_SESSION['pincode'])) {
+    if (array_key_exists('authenticated', $_SESSION) && $this->isValidUser('user_id', $_SESSION['user_id'])) {
       return true;
     }
     return false;
   }
 
   public function isAdmin() {
-    if ($this->credentials[$_SESSION['pincode']]['role'] == 'admin') {
+    $user_id = $this->dbConn->escapeString($_SESSION['user_id']);
+    $query = <<<EOQ
+SELECT COUNT(*)
+FROM `users`
+WHERE `user_id` = {$user_id}
+AND `role` LIKE 'admin'
+EOQ;
+    if ($this->dbConn->querySingle($query)) {
       return true;
     }
     return false;
   }
 
-  public function isValidPinCode($pincode) {
-    if (array_key_exists($pincode, $this->credentials) && $this->isValidTime($pincode)) {
+  public function isValidUser($type, $value) {
+    $type = $this->dbConn->escapeString($type);
+    $value = $this->dbConn->escapeString($value);
+    $query = <<<EOQ
+SELECT COUNT(*)
+FROM `users`
+WHERE `{$type}` = {$value}
+EOQ;
+    if ($this->dbConn->querySingle($query) && $this->isValidTime($type, $value)) {
       return true;
     }
     return false;
   }
 
-  public function isValidTime($pincode) {
-    if ((empty($this->credentials[$pincode]['begin']) || time() > $this->credentials[$pincode]['begin']) && (empty($this->credentials[$pincode]['end']) || time() < $this->credentials[$pincode]['end'])) {
+  public function isValidTime($type, $value) {
+    $type = $this->dbConn->escapeString($type);
+    $value = $this->dbConn->escapeString($value);
+    $query = <<<EOQ
+SELECT COUNT(*)
+FROM `users`
+WHERE `{$type}` = {$value}
+AND (NOT `begin` OR `begin` < DATETIME('now'))
+AND (NOT `end` OR `end` > DATETIME('now'))
+EOQ;
+    if ($this->dbConn->querySingle($query)) {
       return true;
     }
     return false;
   }
 
   public function authenticateSession($pincode) {
-    if ($this->isValidPinCode($pincode)) {
-      $_SESSION['authenticated'] = true;
-      $_SESSION['pincode'] = $pincode;
-      return true;
+    if ($this->isValidUser('pincode', $pincode)) {
+      $pincode = $this->dbConn->escapeString($pincode);
+      $query = <<<EOQ
+SELECT `user_id`
+FROM `users`
+WHERE `pincode` = {$pincode}
+EOQ;
+      if ($user_id = $this->dbConn->querySingle($query)) {
+        $_SESSION['authenticated'] = true;
+        $_SESSION['user_id'] = $user_id;
+        return true;
+      }
     }
     return false;
   }
@@ -76,36 +129,63 @@ class Garage {
     return false;
   }
 
-  public function createUser($pincode, $first_name, $last_name, $email, $role, $begin = null, $end = null) {
-    if (!array_key_exists($pincode, $this->credentials)) {
-      $this->credentials[$pincode] = array(
-        'first_name' => $first_name,
-        'last_name' => $last_name,
-        'email' => $email,
-        'role' => $role,
-        'begin' => $begin,
-        'end' => $end
-      );
-      file_put_contents($this->authFile, json_encode($this->credentials));
-      return true;
+  public function createUser($pincode, $first_name, $last_name = null, $email = null, $role, $begin = null, $end = null) {
+    $pincode = $this->dbConn->escapeString($pincode);
+    $query = <<<EOQ
+SELECT COUNT(*)
+FROM `users`
+WHERE `pincode` = {$pincode}
+EOQ;
+    if (!$this->dbConn->querySingle($query)) {
+      $first_name = $this->dbConn->escapeString($first_name);
+      $last_name = $this->dbConn->escapeString($last_name);
+      $email = $this->dbConn->escapeString($email);
+      $role = $this->dbConn->escapeString($role);
+      $begin = $this->dbConn->escapeString($begin);
+      $end = $this->dbConn->escapeString($end);
+      $query = <<<EOQ
+INSERT
+INTO `users` (`pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`)
+VALUES ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', '{$begin}', '{$end}')
+EOQ;
+      return $this->dbConn->exec($query);
     }
     return false;
   }
 
-  public function removeUser($pincode) {
-    if (array_key_exists($pincode, $this->credentials)) {
-      unset($this->credentials[$pincode]);
-      file_put_contents($this->authFile, json_encode($this->credentials));
-      return true;
+  public function removeUser($user_id) {
+    $user_id = $this->dbConn->escapeString($user_id);
+$query = <<<EOQ
+DELETE
+FROM `users`
+WHERE `user_id` = {$user_id}
+EOQ;
+    return $this->dbConn->exec($query);
+  }
+
+  public function getUsers() {
+    $query = <<<EOQ
+SELECT `user_id`, substr('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`
+FROM `users`
+EOQ;
+    if ($users = $this->dbConn->query($query)) {
+      while ($user = $users->fetchArray(SQLITE3_ASSOC)) {
+        $output[] = $user;
+      }
+      return $output;
     }
     return false;
   }
 
-  public function getUser($pincode = null) {
-    if ($pincode) {
-      return $this->credentials[$pincode];
-    } else {
-      return $this->credentials;
+  public function getUserDetails($user_id) {
+    $user_id = $this->dbConn->escapeString($user_id);
+    $query = <<<EOQ
+SELECT `user_id`, substr('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`
+FROM `users`
+WHERE `user_id` = {$user_id}
+EOQ;
+    if ($user = $this->dbConn->querySingle($query, true)) {
+      return $user;
     }
     return false;
   }

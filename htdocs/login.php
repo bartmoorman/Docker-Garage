@@ -75,7 +75,7 @@ if ($garage->isConfigured()) {
           if (pincode.length == 6) {
             $('#pincode button').prop('disabled', true);
 
-            $.getJSON('src/action.php', {"func": "validate", "pincode": pincode})
+            $.getJSON('src/action.php', {"func": "validatePinCode", "pincode": pincode})
               .done(function(data) {
                 if (data.success) {
                   location.href = '<?php echo dirname($_SERVER['PHP_SELF']) ?>';

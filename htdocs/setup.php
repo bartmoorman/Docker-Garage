@@ -56,7 +56,7 @@ if ($garage->isConfigured()) {
       $(document).ready(function() {
         $('#setup').submit(function(event) {
           event.preventDefault();
-          $.getJSON('src/action.php', {"func": "create", "pincode": $('#setup input[name=pincode]').val(), "first_name": $('#setup input[name=first_name]').val(), "last_name": $('#setup input[name=last_name]').val(), "email": $('#setup input[name=email]').val(), "role": $('#setup input[name=role]').val()})
+          $.getJSON('src/action.php', {"func": "createUser", "pincode": $('#setup input[name=pincode]').val(), "first_name": $('#setup input[name=first_name]').val(), "last_name": $('#setup input[name=last_name]').val(), "email": $('#setup input[name=email]').val(), "role": $('#setup input[name=role]').val()})
             .done(function(data) {
               if (data.success) {
                 location.href = '<?php echo dirname($_SERVER['PHP_SELF']) ?>';

@@ -27,7 +27,7 @@ if ($garage->isConfigured()) {
     <link rel='stylesheet' href='//use.fontawesome.com/releases/v5.0.12/css/all.css' integrity='sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9' crossorigin='anonymous'>
   </head>
   <body>
-    <div class='container' id='users'>
+    <div class='container'>
       <table class='table table-striped table-hover table-sm mt-3'>
         <thead>
           <tr>
@@ -43,9 +43,9 @@ if ($garage->isConfigured()) {
         </thead>
         <tbody>
 <?php
-foreach ($garage->getUser() as $pin => $user) {
+foreach ($garage->getUsers() as $user) {
   echo "          <tr>" . PHP_EOL;
-  echo "            <th>{$pin}</th>" . PHP_EOL;
+  echo "            <th>{$user['pincode']}</th>" . PHP_EOL;
   echo "            <td>{$user['first_name']}</td>" . PHP_EOL;
   echo "            <td>{$user['last_name']}</td>" . PHP_EOL;
   echo "            <td>{$user['email']}</td>" . PHP_EOL;
@@ -53,8 +53,8 @@ foreach ($garage->getUser() as $pin => $user) {
   echo "            <td>{$user['begin']}</td>" . PHP_EOL;
   echo "            <td>{$user['end']}</td>" . PHP_EOL;
   echo "            <td>" . PHP_EOL;
-  echo "              <button type='button' class='btn btn-sm btn-outline-info' id='edit' data-toggle='modal' data-target='#editModal' data-pincode='{$pin}'>Edit</button>" . PHP_EOL;
-  echo "              <button type='button' class='btn btn-sm btn-outline-danger' id='delete' data-pincode='{$pin}'>Delete</button>" . PHP_EOL;
+  echo "              <button type='button' class='btn btn-sm btn-outline-info' id='edit' data-toggle='modal' data-target='#editModal' data-user_id='{$user['user_id']}'>Edit</button>" . PHP_EOL;
+  echo "              <button type='button' class='btn btn-sm btn-outline-danger' id='delete' data-user_id='{$user['user_id']}'>Delete</button>" . PHP_EOL;
   echo "            </td>" . PHP_EOL;
   echo "          </tr>" . PHP_EOL;
 }
@@ -65,7 +65,7 @@ foreach ($garage->getUser() as $pin => $user) {
     <div class='modal fade' id='editModal'>
       <div class='modal-dialog'>
         <div class='modal-content'>
-          <form id='setup' method='post'>
+          <form id='editUser' method='post'>
             <div class='modal-header'>
               <h5 class='modal-title'>Edit User</h5>
               <button type='button' class='close' data-dismiss='modal'><span>&times;</span></button>
@@ -73,7 +73,7 @@ foreach ($garage->getUser() as $pin => $user) {
             <div class='modal-body'>
               <div class='form-row justify-content-center'>
                 <div class='col-auto'>
-                  <input class='form-control' type='tel' name='pincode' placeholder='Numeric Pin Code' maxlength='6' pattern='[0-9]{6}' required disabled>
+                  <input class='form-control' type='tel' name='pincode' placeholder='Numeric Pin Code' maxlength='6' pattern='[0-9]{6}' required>
                   <input class='form-control' type='text' name='first_name' placeholder='First Name' required>
                   <input class='form-control' type='text' name='last_name' placeholder='Last Name' required>
                   <input class='form-control' type='email' name='email' placeholder='Email' required>
@@ -99,12 +99,12 @@ foreach ($garage->getUser() as $pin => $user) {
     <script>
       $(document).ready(function() {
         $('#edit').click(function() {
-          pincode=$(this).data('pincode');
-          $.getJSON('src/action.php', {"func": "retrieve", "pincode": pincode})
+          user_id=$(this).data('user_id');
+          $.getJSON('src/action.php', {"func": "userDetails", "user_id": user_id})
               .done(function(data) {
                 if (data.success) {
                   user = data.data;
-                  $('#editModal input[name=pincode]').val(pincode);
+                  $('#editModal input[name=pincode]').val(user.pincode);
                   $('#editModal input[name=first_name]').val(user.first_name);
                   $('#editModal input[name=last_name]').val(user.last_name);
                   $('#editModal input[name=email]').val(user.email);
@@ -117,9 +117,10 @@ foreach ($garage->getUser() as $pin => $user) {
         });
 
         $('#delete').click(function() {
+          user_id=$(this).data('user_id');
         });
 
-        $('#setup').submit(function(event) {
+        $('#editUser').submit(function(event) {
           event.preventDefault();
         });
       });
