@@ -2,9 +2,10 @@
 class Garage {
   private $dbFile = '/config/garage.db';
   private $dbConn = null;
-  private $openerPin = null;
-  private $sensorPin = null;
-  private $buttonPin = null;
+  private $opener = null;
+  private $sensor = null;
+  private $button = null;
+  private $light = null;
 
   public function __construct() {
     session_start();
@@ -16,9 +17,10 @@ class Garage {
       $this->initDb();
     }
 
-    $this->openerPin = strtok(getenv('OPENER_PIN'), ':');
-    $this->sensorPin = strtok(getenv('SENSOR_PIN'), ':');
-    $this->buttonPin = strtok(getenv('BUTTON_PIN'), ':');
+    $this->opener = strtok(getenv('OPENER_PIN'), ':');
+    $this->sensor = strtok(getenv('SENSOR_PIN'), ':');
+    $this->button = strtok(getenv('BUTTON_PIN'), ':');
+    $this->light = strtok(getenv('LIGHT_PIN'), ':');
   }
 
   private function connectDb() {
@@ -153,6 +155,32 @@ EOQ;
     return false;
   }
 
+  public function updateUser($user_id, $pincode, $first_name, $last_name = null, $email = null, $role, $begin = null, $end = null) {
+    $user_id = $this->dbConn->escapeString($user_id);
+    $pincode = $this->dbConn->escapeString($pincode);
+    $query = <<<EOQ
+SELECT COUNT(*)
+FROM `users`
+WHERE `user_id` != {$user_id}
+AND `pincode` = {$pincode}
+EOQ;
+    if (!$this->dbConn->querySingle($query)) {
+      $first_name = $this->dbConn->escapeString($first_name);
+      $last_name = $this->dbConn->escapeString($last_name);
+      $email = $this->dbConn->escapeString($email);
+      $role = $this->dbConn->escapeString($role);
+      $begin = $this->dbConn->escapeString($begin);
+      $end = $this->dbConn->escapeString($end);
+      $query = <<<EOQ
+UPDATE `users`
+SET (`pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`) = ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', '{$begin}', '{$end}')
+WHERE `user_id` = {$user_id}
+EOQ;
+      return $this->dbConn->exec($query);
+    }
+    return false;
+  }
+
   public function removeUser($user_id) {
     $user_id = $this->dbConn->escapeString($user_id);
 $query = <<<EOQ
@@ -190,10 +218,10 @@ EOQ;
     return false;
   }
 
-  public function doTrigger() {
-    if (file_put_contents("/gpio/{$this->openerPin}/value", 1)) {
+  public function doActivate($device) {
+    if (file_put_contents("/gpio/{$this->{$device}}/value", 0)) {
       usleep(500000);
-      if (file_put_contents("/gpio/{$this->openerPin}/value", 0)) {
+      if (file_put_contents("/gpio/{$this->{$device}}/value", 1)) {
         return true;
       } else {
         return false;

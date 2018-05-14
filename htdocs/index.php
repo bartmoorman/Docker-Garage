@@ -27,7 +27,10 @@ if ($garage->isConfigured()) {
     <div class='d-flex justify-content-center h-100'>
       <div class='align-self-center'>
         <div class='row justify-content-center'>
-          <div class='col-auto'><button class='btn btn-outline-info btn-lg' id='trigger'><h1 class='my-1'>TRIGGER</h1></button></div>
+          <div class='col-auto my-2'><button class='btn btn-outline-info btn-lg id-activate' data-device='opener'><h1 class='my-1'>OPENER</h1></button></div>
+        </div>
+        <div class='row justify-content-center'>
+          <div class='col-auto my-2'><button class='btn btn-outline-info btn-lg id-activate' data-device='light'><h1 class='my-1'>LIGHT</h1></button></div>
         </div>
       </div>
     </div>
@@ -36,21 +39,23 @@ if ($garage->isConfigured()) {
     <script src='//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js' integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl' crossorigin='anonymous'></script>
     <script>
       $(document).ready(function() {
-        $('#trigger').click(function() {
-          $('#trigger').prop('disabled', true);
+        $('button.id-activate').click(function() {
+          $('button.id-activate').prop('disabled', true);
 
-          $.getJSON('src/action.php', {"func": "triggerOpener"})
-              .done(function(data) {
-                if (data.success) {
-                  alert('Success!');
-                }
-              })
-              .fail(function(jqxhr, textStatus, errorThrown) {
-                console.log(`validation failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
-              })
-              .always(function() {
-                $('#trigger').prop('disabled', false);
-              });
+          $.getJSON('src/action.php', {"func": "activateDevice", "device": $(this).data('device')})
+            .done(function(data) {
+              if (data.success) {
+                alert('Success!');
+              } else {
+                alert('Failed!');
+              }
+            })
+            .fail(function(jqxhr, textStatus, errorThrown) {
+              console.log(`activateDevice failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
+            })
+            .always(function() {
+              $('button.id-activate').prop('disabled', false);
+            });
         });
       });
     </script>

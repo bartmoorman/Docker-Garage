@@ -1,9 +1,10 @@
 FROM alpine
 
 ENV HTTPD_SERVERNAME="localhost" \
-    OPENER_PIN="23:out" \
+    OPENER_PIN="23:high" \
     SENSOR_PIN="24:in" \
-    BUTTON_PIN="25:in"
+    BUTTON_PIN="25:in" \
+    LIGHT_PIN="27:high"
 
 RUN apk add --no-cache \
     apache2 \

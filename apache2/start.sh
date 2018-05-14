@@ -1,11 +1,12 @@
 #!/bin/sh
-for PIN in ${OPENER_PIN} ${SENSOR_PIN} ${BUTTON_PIN}; do
+for PIN in ${OPENER_PIN} ${SENSOR_PIN} ${BUTTON_PIN} ${LIGHT_PIN}; do
     if [ ! -L /sys/class/gpio/gpio${PIN%:*} ]; then
       echo ${PIN%:*} > /sys/class/gpio/export
-      usleep 100000
+      usleep 250000
     fi
 
     echo ${PIN#*:} > /sys/class/gpio/gpio${PIN%:*}/direction
+    usleep 250000
 
     chgrp apache $(readlink -f /sys/class/gpio/gpio${PIN%:*})
     chgrp apache $(readlink -f /sys/class/gpio/gpio${PIN%:*}/device)
