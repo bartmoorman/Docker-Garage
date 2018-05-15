@@ -32,9 +32,9 @@ if ($garage->isConfigured()) {
         <thead>
           <tr>
             <th><button type='button' class='btn btn-sm btn-outline-success id-add'>Add</button></th>
-            <th>Pin</th>
-            <th>First</th>
-            <th>Last</th>
+            <th>Pin Code</th>
+            <th>First Name</th>
+            <th>Last Name</th>
             <th>Email</th>
             <th>Role</th>
             <th>Begin</th>
@@ -44,15 +44,23 @@ if ($garage->isConfigured()) {
         <tbody>
 <?php
 foreach ($garage->getUsers() as $user) {
-  echo "          <tr>" . PHP_EOL;
-  echo "            <td><button type='button' class='btn btn-sm btn-outline-info id-edit' data-user_id='{$user['user_id']}'>Edit</button></td>" . PHP_EOL;
-  echo "            <th>{$user['pincode']}</th>" . PHP_EOL;
+  $begin = !empty($user['begin']) ? date('m/d/Y, h:i A', $user['begin']) : null;
+  $end = !empty($user['end']) ? date('m/d/Y, h:i A', $user['end']) : null;
+  $tableClass = $user['disabled'] ? 'text-danger' : 'table-default';
+
+  echo "          <tr class='{$tableClass}'>" . PHP_EOL;
+  if ($user['disabled']) {
+    echo "            <td><button type='button' class='btn btn-sm btn-outline-warning id-modify' data-action='enable' data-user_id='{$user['user_id']}'>Enable</button></td>" . PHP_EOL;
+  } else {
+    echo "            <td><button type='button' class='btn btn-sm btn-outline-info id-edit' data-user_id='{$user['user_id']}'>Edit</button></td>" . PHP_EOL;
+  }
+  echo "            <td>{$user['pincode']}</td>" . PHP_EOL;
   echo "            <td>{$user['first_name']}</td>" . PHP_EOL;
   echo "            <td>{$user['last_name']}</td>" . PHP_EOL;
   echo "            <td>{$user['email']}</td>" . PHP_EOL;
   echo "            <td>{$user['role']}</td>" . PHP_EOL;
-  echo "            <td>{$user['begin']}</td>" . PHP_EOL;
-  echo "            <td>{$user['end']}</td>" . PHP_EOL;
+  echo "            <td>{$begin}</td>" . PHP_EOL;
+  echo "            <td>{$end}</td>" . PHP_EOL;
   echo "          </tr>" . PHP_EOL;
 }
 ?>
@@ -84,7 +92,8 @@ foreach ($garage->getUsers() as $user) {
               </div>
             </div>
             <div class='modal-footer'>
-              <button type='button' class='btn btn-outline-danger mr-auto id-delete'>Delete</button>
+              <button type='button' class='btn btn-outline-warning id-modify id-volatile' data-action='disable'>Disable</button>
+              <button type='button' class='btn btn-outline-danger mr-auto id-modify id-volatile' data-action='delete'>Delete</button>
               <button type='button' class='btn btn-secondary' data-dismiss='modal'>Close</button>
               <button type='submit' class='btn id-submit'></button>
             </div>
@@ -100,7 +109,7 @@ foreach ($garage->getUsers() as $user) {
         $('button.id-add').click(function() {
           $('h5.modal-title').text('Add User');
           $('form').removeData('user_id').data('func', 'createUser').trigger('reset');
-          $('button.id-delete').addClass('d-none').removeData('user_id');
+          $('button.id-modify.id-volatile').addClass('d-none').removeData('user_id');
           $('button.id-submit').removeClass('btn-info').addClass('btn-success').text('Add');
           $('div.id-modal').modal('toggle');
         });
@@ -108,7 +117,7 @@ foreach ($garage->getUsers() as $user) {
         $('button.id-edit').click(function() {
           $('h5.modal-title').text('Edit User');
           $('form').removeData('user_id').data('func', 'updateUser').trigger('reset');
-          $('button.id-delete').removeClass('d-none').removeData('user_id');
+          $('button.id-modify.id-volatile').removeClass('d-none').removeData('user_id');
           $('button.id-submit').removeClass('btn-success').addClass('btn-info').text('Save');
           $.getJSON('src/action.php', {"func": "userDetails", "user_id": $(this).data('user_id')})
             .done(function(data) {
@@ -122,7 +131,7 @@ foreach ($garage->getUsers() as $user) {
                 $('#role').val(user.role);
                 $('#begin').val(user.begin);
                 $('#end').val(user.end);
-                $('button.id-delete').data('user_id', user.user_id);
+                $('button.id-modify.id-volatile').data('user_id', user.user_id);
                 $('div.id-modal').modal('toggle');
               }
             })
@@ -131,9 +140,9 @@ foreach ($garage->getUsers() as $user) {
             });
         });
 
-        $('button.id-delete').click(function() {
-          if (confirm(`Delete user ${$(this).data('user_id')}?`)) {
-            $.getJSON('src/action.php', {"func": "removeUser", "user_id": $(this).data('user_id')})
+        $('button.id-modify').click(function() {
+          if (confirm(`Want to ${$(this).data('action').toUpperCase()} user ${$(this).data('user_id')}?`)) {
+            $.getJSON('src/action.php', {"func": "modifyUser", "action": $(this).data('action'), "user_id": $(this).data('user_id')})
               .done(function(data) {
                 if (data.success) {
                   location.reload();

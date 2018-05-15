@@ -1,4 +1,4 @@
-FROM alpine
+FROM bmoorman/alpine:armhf
 
 ENV HTTPD_SERVERNAME="localhost" \
     OPENER_PIN="23:high" \

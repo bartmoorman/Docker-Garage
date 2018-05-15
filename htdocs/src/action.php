@@ -3,12 +3,14 @@ require_once('../inc/garage.class.php');
 
 $garage = new Garage();
 
-$output = array('success' => null, 'message' => null);
+$output = $logFields = array('success' => null, 'message' => null);
+$log = array();
 
 switch ($_REQUEST['func']) {
   case 'validatePinCode':
     if (!empty($_REQUEST['pincode'])) {
       $output['success'] = $garage->authenticateSession($_REQUEST['pincode']);
+      $log['pincode'] = $_REQUEST['pincode'];
     } else {
       $output['success'] = false;
       $output['message'] = 'No pincode supplied';
@@ -39,6 +41,7 @@ switch ($_REQUEST['func']) {
         $begin = !empty($_REQUEST['begin']) ? $_REQUEST['begin'] : null;
         $end = !empty($_REQUEST['end']) ? $_REQUEST['end'] : null;
         $output['success'] = $garage->updateUser($_REQUEST['user_id'], $_REQUEST['pincode'], $_REQUEST['first_name'], $last_name, $email, $_REQUEST['role'], $begin, $end);
+        $log['user_id'] = $_REQUEST['user_id'];
       } else {
         $output['success'] = false;
         $output['message'] = 'Missing arguments';
@@ -48,13 +51,15 @@ switch ($_REQUEST['func']) {
       $output['message'] = 'Unauthorized';
     }
     break;
-  case 'removeUser':
+  case 'modifyUser':
     if ($garage->isValidSession() && $garage->isAdmin()) {
-      if (!empty($_REQUEST['user_id'])) {
-        $output['success'] = $garage->removeUser($_REQUEST['user_id']);
+      if (!empty($_REQUEST['action']) && !empty($_REQUEST['user_id'])) {
+        $output['success'] = $garage->modifyUser($_REQUEST['action'], $_REQUEST['user_id']);
+        $log['action'] = $_REQUEST['action'];
+        $log['user_id'] = $_REQUEST['user_id'];
       } else {
         $output['success'] = false;
-        $output['message'] = 'No user id supplied';
+        $output['message'] = 'Missing arguments';
       }
     } else {
       $output['success'] = false;
@@ -64,8 +69,9 @@ switch ($_REQUEST['func']) {
   case 'userDetails':
     if ($garage->isValidSession() && $garage->isAdmin()) {
       if (!empty($_REQUEST['user_id'])) {
-        $output['data'] = $garage->getUserDetails($_REQUEST['user_id']);
         $output['success'] = true;
+        $output['data'] = $garage->getUserDetails($_REQUEST['user_id']);
+        $log['user_id'] = $_REQUEST['user_id'];
       } else {
         $output['success'] = false;
         $output['message'] = 'No user id supplied';
@@ -79,6 +85,7 @@ switch ($_REQUEST['func']) {
     if ($garage->isValidSession()) {
       if (!empty($_REQUEST['device'])) {
         $output['success'] = $garage->doActivate($_REQUEST['device']);
+        $log['device'] = $_REQUEST['device'];
       } else {
         $output['success'] = false;
         $output['message'] = 'No device supplied';
@@ -89,6 +96,8 @@ switch ($_REQUEST['func']) {
     }
     break;
 }
+
+$garage->logEvent($_REQUEST['func'], array_merge(array_intersect_key($output, $logFields), $log));
 
 echo json_encode($output);
 ?>

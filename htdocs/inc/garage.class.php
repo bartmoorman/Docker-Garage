@@ -31,16 +31,25 @@ class Garage {
 
   private function initDb() {
     $query = <<<EOQ
-CREATE TABLE `users` (
+CREATE TABLE IF NOT EXISTS `users` (
   `user_id` INTEGER PRIMARY KEY AUTOINCREMENT,
   `pincode` INTEGER NOT NULL UNIQUE,
   `first_name` TEXT NOT NULL,
   `last_name` TEXT,
   `email` TEXT,
   `role` TEXT NOT NULL,
-  `begin` TEXT,
-  `end` TEXT
-)
+  `begin` INTEGER,
+  `end` INTEGER,
+  `disabled` INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS `events` (
+  `event_id` INTEGER PRIMARY KEY AUTOINCREMENT,
+  `date` INTEGER DEFAULT (strftime('%s', 'now')),
+  `user_id` INTEGER,
+  `action` TEXT,
+  `message` BLOB,
+  `remote_addr` INTEGER
+);
 EOQ;
     return $this->dbConn->exec($query);
   }
@@ -48,7 +57,7 @@ EOQ;
   public function isConfigured() {
     $query = <<<EOQ
 SELECT COUNT(*)
-FROM `users`
+FROM `users`;
 EOQ;
     if ($this->dbConn->querySingle($query)) {
       return true;
@@ -64,12 +73,12 @@ EOQ;
   }
 
   public function isAdmin() {
-    $user_id = $this->dbConn->escapeString($_SESSION['user_id']);
+    $user_id = $_SESSION['user_id'];
     $query = <<<EOQ
 SELECT COUNT(*)
 FROM `users`
 WHERE `user_id` = {$user_id}
-AND `role` LIKE 'admin'
+AND `role` LIKE 'admin';
 EOQ;
     if ($this->dbConn->querySingle($query)) {
       return true;
@@ -84,22 +93,9 @@ EOQ;
 SELECT COUNT(*)
 FROM `users`
 WHERE `{$type}` = {$value}
-EOQ;
-    if ($this->dbConn->querySingle($query) && $this->isValidTime($type, $value)) {
-      return true;
-    }
-    return false;
-  }
-
-  public function isValidTime($type, $value) {
-    $type = $this->dbConn->escapeString($type);
-    $value = $this->dbConn->escapeString($value);
-    $query = <<<EOQ
-SELECT COUNT(*)
-FROM `users`
-WHERE `{$type}` = {$value}
-AND (NOT `begin` OR `begin` < DATETIME('now'))
-AND (NOT `end` OR `end` > DATETIME('now'))
+AND (`begin` IS NULL OR `begin` < strftime('%s', 'now', 'localtime'))
+AND (`end` IS NULL OR `end` > strftime('%s', 'now', 'localtime'))
+AND NOT `disabled`;
 EOQ;
     if ($this->dbConn->querySingle($query)) {
       return true;
@@ -113,7 +109,7 @@ EOQ;
       $query = <<<EOQ
 SELECT `user_id`
 FROM `users`
-WHERE `pincode` = {$pincode}
+WHERE `pincode` = {$pincode};
 EOQ;
       if ($user_id = $this->dbConn->querySingle($query)) {
         $_SESSION['authenticated'] = true;
@@ -136,7 +132,7 @@ EOQ;
     $query = <<<EOQ
 SELECT COUNT(*)
 FROM `users`
-WHERE `pincode` = {$pincode}
+WHERE `pincode` = {$pincode};
 EOQ;
     if (!$this->dbConn->querySingle($query)) {
       $first_name = $this->dbConn->escapeString($first_name);
@@ -148,7 +144,7 @@ EOQ;
       $query = <<<EOQ
 INSERT
 INTO `users` (`pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`)
-VALUES ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', '{$begin}', '{$end}')
+VALUES ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', strftime('%s', '{$begin}'), strftime('%s', '{$end}'));
 EOQ;
       return $this->dbConn->exec($query);
     }
@@ -162,7 +158,7 @@ EOQ;
 SELECT COUNT(*)
 FROM `users`
 WHERE `user_id` != {$user_id}
-AND `pincode` = {$pincode}
+AND `pincode` = {$pincode};
 EOQ;
     if (!$this->dbConn->querySingle($query)) {
       $first_name = $this->dbConn->escapeString($first_name);
@@ -173,30 +169,50 @@ EOQ;
       $end = $this->dbConn->escapeString($end);
       $query = <<<EOQ
 UPDATE `users`
-SET (`pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`) = ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', '{$begin}', '{$end}')
-WHERE `user_id` = {$user_id}
+SET (`pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`) = ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', strftime('%s', '{$begin}'), strftime('%s', '{$end}'))
+WHERE `user_id` = {$user_id};
 EOQ;
       return $this->dbConn->exec($query);
     }
     return false;
   }
 
-  public function removeUser($user_id) {
+  public function modifyUser($action, $user_id) {
     $user_id = $this->dbConn->escapeString($user_id);
-$query = <<<EOQ
-DELETE
-FROM `users`
-WHERE `user_id` = {$user_id}
+    switch ($action) {
+      case 'enable':
+        $query = <<<EOQ
+UPDATE `users`
+SET `disabled` = '0'
+WHERE `user_id` = {$user_id};
 EOQ;
+        break;
+      case 'disable':
+        $query = <<<EOQ
+UPDATE `users`
+SET `disabled` = '1'
+WHERE `user_id` = {$user_id};
+EOQ;
+        break;
+      case 'delete':
+        $query = <<<EOQ
+DELETE `users`, `events`
+FROM `users`
+JOIN `events` USING (`user_id`)
+WHERE `user_id` = {$user_id};
+EOQ;
+        break;
+    }
     return $this->dbConn->exec($query);
   }
 
   public function getUsers() {
     $query = <<<EOQ
-SELECT `user_id`, substr('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`
-FROM `users`
+SELECT `user_id`, substr('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`, `disabled`
+FROM `users`;
 EOQ;
     if ($users = $this->dbConn->query($query)) {
+      $output = array();
       while ($user = $users->fetchArray(SQLITE3_ASSOC)) {
         $output[] = $user;
       }
@@ -208,12 +224,42 @@ EOQ;
   public function getUserDetails($user_id) {
     $user_id = $this->dbConn->escapeString($user_id);
     $query = <<<EOQ
-SELECT `user_id`, substr('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`
+SELECT `user_id`, substr('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, strftime('%Y-%m-%dT%H:%M', datetime(`begin`, 'unixepoch')) AS `begin`, strftime('%Y-%m-%dT%H:%M', datetime(`end`, 'unixepoch')) AS `end`, `disabled`
 FROM `users`
-WHERE `user_id` = {$user_id}
+WHERE `user_id` = {$user_id};
 EOQ;
     if ($user = $this->dbConn->querySingle($query, true)) {
       return $user;
+    }
+    return false;
+  }
+
+  public function logEvent($action, $message = array()) {
+    $user_id = array_key_exists('authenticated', $_SESSION) ? $_SESSION['user_id'] : null;
+    $action = $this->dbConn->escapeString($action);
+    $message = $this->dbConn->escapeString(json_encode($message));
+    $remote_addr = ip2long(array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR']);
+    $query = <<<EOQ
+INSERT
+INTO `events` (`user_id`, `action`, `message`, `remote_addr`)
+VALUES ('{$user_id}', '{$action}', '{$message}', '{$remote_addr}')
+EOQ;
+    return $this->dbConn->exec($query);
+  }
+
+  public function getEvents() {
+    $query = <<<EOQ
+SELECT `event_id`, strftime('%s', datetime(`date`, 'unixepoch', 'localtime')) AS `date`, `user_id`, `first_name`, `last_name`, `action`, `message`, `remote_addr`, `disabled`
+FROM `events`
+LEFT JOIN `users` USING (`user_id`)
+ORDER BY `date` DESC;
+EOQ;
+    if ($events = $this->dbConn->query($query)) {
+      $output = array();
+      while ($event = $events->fetchArray(SQLITE3_ASSOC)) {
+        $output[] = $event;
+      }
+      return $output;
     }
     return false;
   }
