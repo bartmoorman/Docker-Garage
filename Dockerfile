@@ -4,7 +4,7 @@ ENV HTTPD_SERVERNAME="localhost" \
     OPENER_PIN="23:high" \
     SENSOR_PIN="24:in" \
     BUTTON_PIN="25:in" \
-    LIGHT_PIN="27:high"
+    LIGHT_PIN="disabled"
 
 RUN apk add --no-cache \
     apache2 \

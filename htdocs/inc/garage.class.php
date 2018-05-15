@@ -2,10 +2,7 @@
 class Garage {
   private $dbFile = '/config/garage.db';
   private $dbConn = null;
-  private $opener = null;
-  private $sensor = null;
-  private $button = null;
-  private $light = null;
+  private $devices = array('opener' => null, 'sensor' => null, 'button' => null, 'light' => null);
 
   public function __construct() {
     session_start();
@@ -17,10 +14,12 @@ class Garage {
       $this->initDb();
     }
 
-    $this->opener = strtok(getenv('OPENER_PIN'), ':');
-    $this->sensor = strtok(getenv('SENSOR_PIN'), ':');
-    $this->button = strtok(getenv('BUTTON_PIN'), ':');
-    $this->light = strtok(getenv('LIGHT_PIN'), ':');
+    foreach (array_keys($this->devices) as $device) {
+      $env = getenv(strtoupper($device) . '_PIN');
+      if ($pos = strpos($env, ':')) {
+        $this->devices[$device] = substr($env, 0, $pos);
+      }
+    }
   }
 
   private function connectDb() {
@@ -54,13 +53,19 @@ EOQ;
     return $this->dbConn->exec($query);
   }
 
-  public function isConfigured() {
-    $query = <<<EOQ
+  public function isConfigured($device = null) {
+    if ($device) {
+      if (array_key_exists($device, $this->devices) && !empty($this->devices[$device])) {
+        return true;
+      }
+    } else {
+      $query = <<<EOQ
 SELECT COUNT(*)
 FROM `users`;
 EOQ;
-    if ($this->dbConn->querySingle($query)) {
-      return true;
+      if ($this->dbConn->querySingle($query)) {
+        return true;
+      }
     }
     return false;
   }
@@ -265,12 +270,10 @@ EOQ;
   }
 
   public function doActivate($device) {
-    if (file_put_contents("/gpio/{$this->{$device}}/value", 0)) {
+    if (file_put_contents("/gpio/{$this->devices[$device]}/value", 0)) {
       usleep(500000);
-      if (file_put_contents("/gpio/{$this->{$device}}/value", 1)) {
+      if (file_put_contents("/gpio/{$this->devices[$device]}/value", 1)) {
         return true;
-      } else {
-        return false;
       }
     }
     return false;

@@ -41,7 +41,7 @@ if ($garage->isConfigured()) {
         <tbody>
 <?php
 foreach ($garage->getEvents() as $event) {
-  $date = !empty($event['date']) ? date('m/d/Y, h:i A', $event['date']) : null;
+  $date = date('m/d/Y, h:i A', $event['date']);
   $user_name = !empty($event['last_name']) ? sprintf('%2$s, %1$s', $event['first_name'], $event['last_name']) : $event['first_name'];
   $remote_addr = !empty($event['remote_addr']) ? long2ip($event['remote_addr']) : null;
 

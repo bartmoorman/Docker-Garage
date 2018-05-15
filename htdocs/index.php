@@ -26,12 +26,16 @@ if ($garage->isConfigured()) {
   <body class='h-100'>
     <div class='d-flex justify-content-center h-100'>
       <div class='align-self-center'>
-        <div class='row justify-content-center'>
-          <div class='col-auto my-2'><button class='btn btn-outline-info btn-lg id-activate' data-device='opener'><h1 class='my-1'>OPENER</h1></button></div>
-        </div>
-        <div class='row justify-content-center'>
-          <div class='col-auto my-2'><button class='btn btn-outline-info btn-lg id-activate' data-device='light'><h1 class='my-1'>LIGHT</h1></button></div>
-        </div>
+<?php
+foreach (array('opener', 'light') as $device) {
+  if ($garage->isConfigured($device)) {
+    $button = strtoupper($device);
+    echo "        <div class='row justify-content-center'>" . PHP_EOL;
+    echo "          <div class='col-auto my-2'><button class='btn btn-outline-info btn-lg id-activate' data-device='{$device}'><h1 class='my-1'>{$button}</h1></button></div>" . PHP_EOL;
+    echo "        </div>" . PHP_EOL;
+  }
+}
+?>
       </div>
     </div>
     <script src='//code.jquery.com/jquery-3.2.1.min.js' integrity='sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f' crossorigin='anonymous'></script>
