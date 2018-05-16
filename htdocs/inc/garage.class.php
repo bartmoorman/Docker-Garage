@@ -4,8 +4,23 @@ class Garage {
   private $dbConn = null;
   private $devices = array('opener' => null, 'sensor' => null, 'button' => null, 'light' => null);
 
-  public function __construct() {
+  public function __construct($requireConfigured = true, $requireValidSession = true, $requireAdmin = true, $requireIndex = false) {
     session_start();
+
+    if ($this->isConfigured()) {
+      if ($garage->isValidSession()) {
+        if (($requireAdmin && !$this->isAdmin()) || $requireIndex) {
+          header('Location: index.php');
+          exit;
+        }
+      } elseif ($requireValidSession) {
+        header('Location: login.php');
+        exit;
+      }
+    } elseif ($requireConfigured) {
+      header('Location: setup.php');
+      exit;
+    }
 
     if (file_exists($this->dbFile) && is_readable($this->dbFile)) {
       $this->connectDb();

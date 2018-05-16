@@ -1,17 +1,7 @@
 <?php
 require_once('inc/garage.class.php');
 
-$garage = new Garage();
-
-if ($garage->isConfigured()) {
-  if (!$garage->isValidSession()) {
-    header('Location: login.php');
-    exit;
-  }
-} else {
-  header('Location: setup.php');
-  exit;
-}
+$garage = new Garage(true, true, false, false);
 ?>
 <!DOCTYPE html>
 <html class='h-100' lang='en'>

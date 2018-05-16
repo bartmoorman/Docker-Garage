@@ -1,7 +1,7 @@
 <?php
 require_once('../inc/garage.class.php');
 
-$garage = new Garage();
+$garage = new Garage(false, false, false, false);
 
 $output = $logFields = array('success' => null, 'message' => null);
 $log = array();
