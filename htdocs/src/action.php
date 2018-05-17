@@ -1,6 +1,5 @@
 <?php
 require_once('../inc/garage.class.php');
-
 $garage = new Garage(false, false, false, false);
 
 $output = $logFields = array('success' => null, 'message' => null);
@@ -98,6 +97,5 @@ switch ($_REQUEST['func']) {
 }
 
 $garage->logEvent($_REQUEST['func'], array_merge(array_intersect_key($output, $logFields), $log));
-
 echo json_encode($output);
 ?>

@@ -1,6 +1,5 @@
 <?php
 require_once('inc/garage.class.php');
-
 $garage = new Garage(true, true, true, false);
 ?>
 <!DOCTYPE html>
@@ -14,8 +13,13 @@ $garage = new Garage(true, true, true, false);
     <link rel='stylesheet' href='//use.fontawesome.com/releases/v5.0.12/css/all.css' integrity='sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9' crossorigin='anonymous'>
   </head>
   <body>
+    <nav class='navbar'>
+      <button class='btn btn-sm btn-outline-success id-nav' data-href='<?php echo dirname($_SERVER['PHP_SELF']) ?>'>Home</button>
+      <button class='btn btn-sm btn-outline-info ml-auto mr-2 id-nav' data-href='users.php'>Users</button>
+      <button class='btn btn-sm btn-outline-info id-nav' data-href='events.php'>Events</button>
+    </nav>
     <div class='container'>
-      <table class='table table-striped table-hover table-sm mt-3'>
+      <table class='table table-striped table-hover table-sm'>
         <thead>
           <tr>
             <th><button type='button' class='btn btn-sm btn-outline-success id-add'>Add</button></th>
@@ -34,7 +38,6 @@ foreach ($garage->getUsers() as $user) {
   $begin = !empty($user['begin']) ? date('m/d/Y, h:i A', $user['begin']) : null;
   $end = !empty($user['end']) ? date('m/d/Y, h:i A', $user['end']) : null;
   $tableClass = $user['disabled'] ? 'text-danger' : 'table-default';
-
   echo "          <tr class='{$tableClass}'>" . PHP_EOL;
   if ($user['disabled']) {
     echo "            <td><button type='button' class='btn btn-sm btn-outline-warning id-modify' data-action='enable' data-user_id='{$user['user_id']}'>Enable</button></td>" . PHP_EOL;
@@ -152,6 +155,10 @@ foreach ($garage->getUsers() as $user) {
             .fail(function(jqxhr, textStatus, errorThrown) {
               console.log(`${$(this).data('func')} failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
             });
+        });
+
+        $('button.id-nav').click(function() {
+          location.href=$(this).data('href');
         });
       });
     </script>

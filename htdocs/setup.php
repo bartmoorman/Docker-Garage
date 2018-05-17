@@ -1,6 +1,5 @@
 <?php
 require_once('inc/garage.class.php');
-
 $garage = new Garage(false, true, false, true);
 ?>
 <!DOCTYPE html>

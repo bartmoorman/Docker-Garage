@@ -3,12 +3,20 @@ class Garage {
   private $dbFile = '/config/garage.db';
   private $dbConn = null;
   private $devices = array('opener' => null, 'sensor' => null, 'button' => null, 'light' => null);
+  private $gpioValue = '/sys/class/gpio/gpio%d/value';
 
   public function __construct($requireConfigured = true, $requireValidSession = true, $requireAdmin = true, $requireIndex = false) {
     session_start();
 
+    if (file_exists($this->dbFile) && is_readable($this->dbFile)) {
+      $this->connectDb();
+    } elseif (is_writable(dirname($this->dbFile))) {
+      $this->connectDb();
+      $this->initDb();
+    }
+
     if ($this->isConfigured()) {
-      if ($garage->isValidSession()) {
+      if ($this->isValidSession()) {
         if (($requireAdmin && !$this->isAdmin()) || $requireIndex) {
           header('Location: index.php');
           exit;
@@ -20,13 +28,6 @@ class Garage {
     } elseif ($requireConfigured) {
       header('Location: setup.php');
       exit;
-    }
-
-    if (file_exists($this->dbFile) && is_readable($this->dbFile)) {
-      $this->connectDb();
-    } elseif (is_writable(dirname($this->dbFile))) {
-      $this->connectDb();
-      $this->initDb();
     }
 
     foreach (array_keys($this->devices) as $device) {
@@ -97,7 +98,7 @@ EOQ;
     $query = <<<EOQ
 SELECT COUNT(*)
 FROM `users`
-WHERE `user_id` = {$user_id}
+WHERE `user_id` = '{$user_id}'
 AND `role` LIKE 'admin';
 EOQ;
     if ($this->dbConn->querySingle($query)) {
@@ -112,7 +113,7 @@ EOQ;
     $query = <<<EOQ
 SELECT COUNT(*)
 FROM `users`
-WHERE `{$type}` = {$value}
+WHERE `{$type}` = '{$value}'
 AND (`begin` IS NULL OR `begin` < strftime('%s', 'now', 'localtime'))
 AND (`end` IS NULL OR `end` > strftime('%s', 'now', 'localtime'))
 AND NOT `disabled`;
@@ -129,7 +130,7 @@ EOQ;
       $query = <<<EOQ
 SELECT `user_id`
 FROM `users`
-WHERE `pincode` = {$pincode};
+WHERE `pincode` = '{$pincode}';
 EOQ;
       if ($user_id = $this->dbConn->querySingle($query)) {
         $_SESSION['authenticated'] = true;
@@ -152,7 +153,7 @@ EOQ;
     $query = <<<EOQ
 SELECT COUNT(*)
 FROM `users`
-WHERE `pincode` = {$pincode};
+WHERE `pincode` = '{$pincode}';
 EOQ;
     if (!$this->dbConn->querySingle($query)) {
       $first_name = $this->dbConn->escapeString($first_name);
@@ -177,8 +178,8 @@ EOQ;
     $query = <<<EOQ
 SELECT COUNT(*)
 FROM `users`
-WHERE `user_id` != {$user_id}
-AND `pincode` = {$pincode};
+WHERE `user_id` != '{$user_id}'
+AND `pincode` = '{$pincode}';
 EOQ;
     if (!$this->dbConn->querySingle($query)) {
       $first_name = $this->dbConn->escapeString($first_name);
@@ -190,7 +191,7 @@ EOQ;
       $query = <<<EOQ
 UPDATE `users`
 SET (`pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`) = ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', strftime('%s', '{$begin}'), strftime('%s', '{$end}'))
-WHERE `user_id` = {$user_id};
+WHERE `user_id` = '{$user_id}';
 EOQ;
       return $this->dbConn->exec($query);
     }
@@ -204,22 +205,24 @@ EOQ;
         $query = <<<EOQ
 UPDATE `users`
 SET `disabled` = '0'
-WHERE `user_id` = {$user_id};
+WHERE `user_id` = '{$user_id}';
 EOQ;
         break;
       case 'disable':
         $query = <<<EOQ
 UPDATE `users`
 SET `disabled` = '1'
-WHERE `user_id` = {$user_id};
+WHERE `user_id` = '{$user_id}';
 EOQ;
         break;
       case 'delete':
         $query = <<<EOQ
-DELETE `users`, `events`
+DELETE
 FROM `users`
-JOIN `events` USING (`user_id`)
-WHERE `user_id` = {$user_id};
+WHERE `user_id` = '{$user_id}';
+DELETE
+FROM `events`
+WHERE `user_id` = '{$user_id}';
 EOQ;
         break;
     }
@@ -246,7 +249,7 @@ EOQ;
     $query = <<<EOQ
 SELECT `user_id`, substr('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, strftime('%Y-%m-%dT%H:%M', datetime(`begin`, 'unixepoch')) AS `begin`, strftime('%Y-%m-%dT%H:%M', datetime(`end`, 'unixepoch')) AS `end`, `disabled`
 FROM `users`
-WHERE `user_id` = {$user_id};
+WHERE `user_id` = '{$user_id}';
 EOQ;
     if ($user = $this->dbConn->querySingle($query, true)) {
       return $user;
@@ -285,9 +288,9 @@ EOQ;
   }
 
   public function doActivate($device) {
-    if (file_put_contents("/gpio/{$this->devices[$device]}/value", 0)) {
+    if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 0)) {
       usleep(500000);
-      if (file_put_contents("/gpio/{$this->devices[$device]}/value", 1)) {
+      if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 1)) {
         return true;
       }
     }

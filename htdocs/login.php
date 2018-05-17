@@ -1,6 +1,5 @@
 <?php
 require_once('inc/garage.class.php');
-
 $garage = new Garage(true, false, false, true);
 ?>
 <!DOCTYPE html>
@@ -59,14 +58,11 @@ $garage = new Garage(true, false, false, true);
     <script>
       $(document).ready(function() {
         var pincode = '';
-
         $('button.id-number').click(function() {
           pincode = pincode + $(this).text().toString();
           $(`span.id-digits:eq(${pincode.length - 1})`).addClass('bg-success');
-
           if (pincode.length == 6) {
             $('button.id-number').prop('disabled', true);
-
             $.getJSON('src/action.php', {"func": "validatePinCode", "pincode": pincode})
               .done(function(data) {
                 if (data.success) {

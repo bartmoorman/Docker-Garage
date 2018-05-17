@@ -7,15 +7,11 @@ for PIN in ${OPENER_PIN} ${SENSOR_PIN} ${BUTTON_PIN} ${LIGHT_PIN}; do
       fi
 
       echo ${PIN#*:} > /sys/class/gpio/gpio${PIN%:*}/direction
-      usleep 250000
-
-      chgrp apache $(readlink -f /sys/class/gpio/gpio${PIN%:*})
-      chgrp apache $(readlink -f /sys/class/gpio/gpio${PIN%:*}/device)
-      chgrp apache $(readlink -f /sys/class/gpio/gpio${PIN%:*}/value)
-
-      ln -sf $(readlink -f /sys/class/gpio/gpio${PIN%:*}) /gpio/${PIN%:*}
     fi
 done
+
+groupadd -fg $(stat -c '%g' /sys/class/gpio/) gpio
+usermod -aG gpio apache
 
 chown apache: /config
 

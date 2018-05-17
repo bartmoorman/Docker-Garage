@@ -20,7 +20,7 @@ RUN apk add --no-cache \
 COPY apache2/ /etc/apache2/
 COPY htdocs/ /var/www/localhost/htdocs/
 
-VOLUME /config /gpio
+VOLUME /config
 
 EXPOSE 8440
 

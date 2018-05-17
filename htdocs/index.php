@@ -1,6 +1,5 @@
 <?php
 require_once('inc/garage.class.php');
-
 $garage = new Garage(true, true, false, false);
 ?>
 <!DOCTYPE html>
@@ -14,6 +13,16 @@ $garage = new Garage(true, true, false, false);
     <link rel='stylesheet' href='//use.fontawesome.com/releases/v5.0.12/css/all.css' integrity='sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9' crossorigin='anonymous'>
   </head>
   <body class='h-100'>
+<?php
+if ($garage->isAdmin()) {
+  $homeLoc = dirname($_SERVER['PHP_SELF']);
+  echo "    <nav class='navbar fixed-top'>" . PHP_EOL;
+  echo "      <button class='btn btn-sm btn-outline-success id-nav' data-href='{$homeLoc}'>Home</button>" . PHP_EOL;
+  echo "      <button class='btn btn-sm btn-outline-info ml-auto mr-2 id-nav' data-href='users.php'>Users</button>" . PHP_EOL;
+  echo "      <button class='btn btn-sm btn-outline-info id-nav' data-href='events.php'>Events</button>" . PHP_EOL;
+  echo "    </nav>" . PHP_EOL;
+}
+?>
     <div class='d-flex justify-content-center h-100'>
       <div class='align-self-center'>
 <?php
@@ -35,7 +44,6 @@ foreach (array('opener', 'light') as $device) {
       $(document).ready(function() {
         $('button.id-activate').click(function() {
           $('button.id-activate').prop('disabled', true);
-
           $.getJSON('src/action.php', {"func": "activateDevice", "device": $(this).data('device')})
             .done(function(data) {
               if (data.success) {
@@ -50,6 +58,10 @@ foreach (array('opener', 'light') as $device) {
             .always(function() {
               $('button.id-activate').prop('disabled', false);
             });
+        });
+
+        $('button.id-nav').click(function() {
+          location.href=$(this).data('href');
         });
       });
     </script>
