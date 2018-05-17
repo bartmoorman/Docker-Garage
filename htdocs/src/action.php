@@ -10,6 +10,7 @@ switch ($_REQUEST['func']) {
     if (!empty($_REQUEST['pincode'])) {
       $output['success'] = $garage->authenticateSession($_REQUEST['pincode']);
       $log['pincode'] = $_REQUEST['pincode'];
+      usleep(rand(1000000, 1250000));
     } else {
       $output['success'] = false;
       $output['message'] = 'No pincode supplied';

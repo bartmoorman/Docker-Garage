@@ -15,9 +15,9 @@ $garage = new Garage(true, false, false, true);
     <link rel='stylesheet' href='//bootswatch.com/4/darkly/bootstrap.min.css'>
     <link rel='stylesheet' href='//use.fontawesome.com/releases/v5.0.12/css/all.css' integrity='sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9' crossorigin='anonymous'>
     <style>
-      span.id-digits {
-        width: 27px;
-        height: 27px;
+      input.id-digit {
+        font-size: 32px;
+        text-align: center;
       }
     </style>
   </head>
@@ -25,12 +25,14 @@ $garage = new Garage(true, false, false, true);
     <div class='d-flex justify-content-center h-100'>
       <div class='align-self-center'>
         <div class='row justify-content-center'>
-          <div class='col-auto mb-4 mt-2 mx-2 p-0'><span class='border border-secondary rounded-circle d-block id-digits'></span></div>
-          <div class='col-auto mb-4 mt-2 mx-2 p-0'><span class='border border-secondary rounded-circle d-block id-digits'></span></div>
-          <div class='col-auto mb-4 mt-2 mx-2 p-0'><span class='border border-secondary rounded-circle d-block id-digits'></span></div>
-          <div class='col-auto mb-4 mt-2 mx-2 p-0'><span class='border border-secondary rounded-circle d-block id-digits'></span></div>
-          <div class='col-auto mb-4 mt-2 mx-2 p-0'><span class='border border-secondary rounded-circle d-block id-digits'></span></div>
-          <div class='col-auto mb-4 mt-2 mx-2 p-0'><span class='border border-secondary rounded-circle d-block id-digits'></span></div>
+          <div class='input-group mb-4 mt-2'>
+            <input class='form-control p-0 id-digit' size='1' readonly>
+            <input class='form-control p-0 id-digit' size='1' readonly>
+            <input class='form-control p-0 id-digit' size='1' readonly>
+            <input class='form-control p-0 id-digit' size='1' readonly>
+            <input class='form-control p-0 id-digit' size='1' readonly>
+            <input class='form-control p-0 id-digit' size='1' readonly>
+          </div>
         </div>
         <div class='row justify-content-center'>
           <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4 id-number'><h1 class='my-1'>1</h1></button></div>
@@ -47,8 +49,9 @@ $garage = new Garage(true, false, false, true);
           <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4 id-number'><h1 class='my-1'>8</h1></button></div>
           <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4 id-number'><h1 class='my-1'>9</h1></button></div>
         </div>
-        <div class='row justify-content-center'>
+        <div class='row justify-content-end'>
           <div class='col-auto m-2 p-0'><button class='btn btn-outline-info btn-lg rounded-circle px-4 id-number'><h1 class='my-1'>0</h1></button></div>
+          <div class='col-auto m-2 p-0'><button class='btn btn-outline-danger btn-lg rounded-circle px-4 id-clear'><h1 class='my-1'>&lt;</h1></button></div>
         </div>
       </div>
     </div>
@@ -58,9 +61,18 @@ $garage = new Garage(true, false, false, true);
     <script>
       $(document).ready(function() {
         var pincode = '';
+        var timer;
         $('button.id-number').click(function() {
           pincode = pincode + $(this).text().toString();
-          $(`span.id-digits:eq(${pincode.length - 1})`).addClass('bg-success');
+          var digit = pincode.length - 1;
+          if (digit > 0) {
+            clearTimeout(timer);
+            $(`input.id-digit:eq(${digit - 1})`).val('*');
+          }
+          $(`input.id-digit:eq(${digit})`).addClass('border-success').val($(this).text().toString());
+          timer = setTimeout(function() {
+            $(`input.id-digit:eq(${digit})`).val('*');
+          }, 365);
           if (pincode.length == 6) {
             $('button.id-number').prop('disabled', true);
             $.getJSON('src/action.php', {"func": "validatePinCode", "pincode": pincode})
@@ -74,10 +86,17 @@ $garage = new Garage(true, false, false, true);
               })
               .always(function() {
                 pincode = '';
-                $('span.id-digits').removeClass('bg-success');
+                clearTimeout(timer);
+                $('input.id-digit').removeClass('border-success').val('');
                 $('button.id-number').prop('disabled', false);
               });
           }
+        });
+
+        $('button.id-clear').click(function() {
+          pincode = '';
+          clearTimeout(timer);
+          $('input.id-digit').removeClass('border-success').val('');
         });
       });
     </script>
