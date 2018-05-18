@@ -4,11 +4,12 @@ class Garage {
   private $dbConn = null;
   private $devices = array('opener' => null, 'sensor' => null, 'button' => null, 'light' => null);
   private $gpioValue = '/sys/class/gpio/gpio%d/value';
+  public $pageLimit = 20;
 
   public function __construct($requireConfigured = true, $requireValidSession = true, $requireAdmin = true, $requireIndex = false) {
     session_start();
 
-    if (file_exists($this->dbFile) && is_readable($this->dbFile)) {
+    if (file_exists($this->dbFile) && is_writable($this->dbFile)) {
       $this->connectDb();
     } elseif (is_writable(dirname($this->dbFile))) {
       $this->connectDb();
@@ -59,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 );
 CREATE TABLE IF NOT EXISTS `events` (
   `event_id` INTEGER PRIMARY KEY AUTOINCREMENT,
-  `date` INTEGER DEFAULT (strftime('%s', 'now')),
+  `date` INTEGER DEFAULT (STRFTIME('%s', 'now')),
   `user_id` INTEGER,
   `action` TEXT,
   `message` BLOB,
@@ -114,8 +115,8 @@ EOQ;
 SELECT COUNT(*)
 FROM `users`
 WHERE `{$type}` = '{$value}'
-AND (`begin` IS NULL OR `begin` < strftime('%s', 'now', 'localtime'))
-AND (`end` IS NULL OR `end` > strftime('%s', 'now', 'localtime'))
+AND (`begin` IS NULL OR `begin` < STRFTIME('%s', 'now', 'localtime'))
+AND (`end` IS NULL OR `end` > STRFTIME('%s', 'now', 'localtime'))
 AND NOT `disabled`;
 EOQ;
     if ($this->dbConn->querySingle($query)) {
@@ -165,7 +166,7 @@ EOQ;
       $query = <<<EOQ
 INSERT
 INTO `users` (`pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`)
-VALUES ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', strftime('%s', '{$begin}'), strftime('%s', '{$end}'));
+VALUES ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', STRFTIME('%s', '{$begin}'), STRFTIME('%s', '{$end}'));
 EOQ;
       return $this->dbConn->exec($query);
     }
@@ -190,7 +191,7 @@ EOQ;
       $end = $this->dbConn->escapeString($end);
       $query = <<<EOQ
 UPDATE `users`
-SET (`pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`) = ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', strftime('%s', '{$begin}'), strftime('%s', '{$end}'))
+SET (`pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`) = ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', STRFTIME('%s', '{$begin}'), STRFTIME('%s', '{$end}'))
 WHERE `user_id` = '{$user_id}';
 EOQ;
       return $this->dbConn->exec($query);
@@ -229,10 +230,13 @@ EOQ;
     return $this->dbConn->exec($query);
   }
 
-  public function getUsers() {
+  public function getUsers($page = 1) {
+    $start = ($page - 1) * $this->pageLimit;
     $query = <<<EOQ
-SELECT `user_id`, substr('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`, `disabled`
-FROM `users`;
+SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`, `disabled`
+FROM `users`
+ORDER BY `last_name`, `first_name`
+LIMIT {$start}, {$this->pageLimit};
 EOQ;
     if ($users = $this->dbConn->query($query)) {
       $output = array();
@@ -247,7 +251,7 @@ EOQ;
   public function getUserDetails($user_id) {
     $user_id = $this->dbConn->escapeString($user_id);
     $query = <<<EOQ
-SELECT `user_id`, substr('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, strftime('%Y-%m-%dT%H:%M', datetime(`begin`, 'unixepoch')) AS `begin`, strftime('%Y-%m-%dT%H:%M', datetime(`end`, 'unixepoch')) AS `end`, `disabled`
+SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, STRFTIME('%Y-%m-%dT%H:%M', DATETIME(`begin`, 'unixepoch')) AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', DATETIME(`end`, 'unixepoch')) AS `end`, `disabled`
 FROM `users`
 WHERE `user_id` = '{$user_id}';
 EOQ;
@@ -265,17 +269,31 @@ EOQ;
     $query = <<<EOQ
 INSERT
 INTO `events` (`user_id`, `action`, `message`, `remote_addr`)
-VALUES ('{$user_id}', '{$action}', '{$message}', '{$remote_addr}')
+VALUES ('{$user_id}', '{$action}', '{$message}', '{$remote_addr}');
 EOQ;
     return $this->dbConn->exec($query);
   }
 
-  public function getEvents() {
+  public function getCount($type) {
+    $type = $this->dbConn->escapeString($type);
     $query = <<<EOQ
-SELECT `event_id`, strftime('%s', datetime(`date`, 'unixepoch', 'localtime')) AS `date`, `user_id`, `first_name`, `last_name`, `action`, `message`, `remote_addr`, `disabled`
+SELECT COUNT(*)
+FROM `{$type}`;
+EOQ;
+    if ($count = $this->dbConn->querySingle($query)) {
+      return $count;
+    }
+    return false;
+  }
+
+  public function getEvents($page = 1) {
+    $start = ($page - 1) * $this->pageLimit;
+    $query = <<<EOQ
+SELECT `event_id`, STRFTIME('%s', DATETIME(`date`, 'unixepoch', 'localtime')) AS `date`, `user_id`, `first_name`, `last_name`, `action`, `message`, `remote_addr`, `disabled`
 FROM `events`
 LEFT JOIN `users` USING (`user_id`)
-ORDER BY `date` DESC;
+ORDER BY `date` DESC
+LIMIT {$start}, {$this->pageLimit};
 EOQ;
     if ($events = $this->dbConn->query($query)) {
       $output = array();

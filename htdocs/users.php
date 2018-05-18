@@ -1,6 +1,7 @@
 <?php
 require_once('inc/garage.class.php');
 $garage = new Garage(true, true, true, false);
+$currentPage = !empty($_REQUEST['page']) ? $_REQUEST['page'] : 1;
 ?>
 <!DOCTYPE html>
 <html lang='en'>
@@ -24,8 +25,7 @@ $garage = new Garage(true, true, true, false);
           <tr>
             <th><button type='button' class='btn btn-sm btn-outline-success id-add'>Add</button></th>
             <th>Pin Code</th>
-            <th>First Name</th>
-            <th>Last Name</th>
+            <th>User Name</th>
             <th>Email</th>
             <th>Role</th>
             <th>Begin</th>
@@ -35,6 +35,7 @@ $garage = new Garage(true, true, true, false);
         <tbody>
 <?php
 foreach ($garage->getUsers() as $user) {
+  $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
   $begin = !empty($user['begin']) ? date('m/d/Y, h:i A', $user['begin']) : null;
   $end = !empty($user['end']) ? date('m/d/Y, h:i A', $user['end']) : null;
   $tableClass = $user['disabled'] ? 'text-danger' : 'table-default';
@@ -45,8 +46,7 @@ foreach ($garage->getUsers() as $user) {
     echo "            <td><button type='button' class='btn btn-sm btn-outline-info id-edit' data-user_id='{$user['user_id']}'>Edit</button></td>" . PHP_EOL;
   }
   echo "            <td>{$user['pincode']}</td>" . PHP_EOL;
-  echo "            <td>{$user['first_name']}</td>" . PHP_EOL;
-  echo "            <td>{$user['last_name']}</td>" . PHP_EOL;
+  echo "            <td>{$user_name}</td>" . PHP_EOL;
   echo "            <td>{$user['email']}</td>" . PHP_EOL;
   echo "            <td>{$user['role']}</td>" . PHP_EOL;
   echo "            <td>{$begin}</td>" . PHP_EOL;
@@ -57,6 +57,38 @@ foreach ($garage->getUsers() as $user) {
         </tbody>
       </table>
     </div>
+    <nav>
+      <nav>
+        <ul class='pagination justify-content-center'>
+<?php
+$pages = ceil($garage->getCount('users') / $garage->pageLimit);
+$group = ceil($currentPage / 5);
+$previousPage = $currentPage - 1;
+$nextPage = $currentPage + 1;
+
+if ($previousPage <= 0) {
+  echo "        <li class='page-item disabled'><a class='page-link'>Previous</a></li>" . PHP_EOL;
+} else {
+  echo "        <li class='page-item'><a class='page-link id-page' data-page='{$previousPage}'>Previous</a></li>" . PHP_EOL;
+}
+
+for ($i=1; $i<=$pages; $i++) {
+  if ($currentPage == $i) {
+    echo "        <li class='page-item disabled'><a class='page-link bg-secondary id-page' data-page='{$i}'>{$i}</a></li>" . PHP_EOL;
+  } elseif (ceil($i / 5) == $group) {
+    echo "        <li class='page-item'><a class='page-link id-page' data-page='{$i}'>{$i}</a></li>" . PHP_EOL;
+  }
+}
+
+if ($nextPage > $pages) {
+  echo "        <li class='page-item disabled'><a class='page-link'>Next</a></li>" . PHP_EOL;
+} else {
+  echo "        <li class='page-item'><a class='page-link id-page' data-page='{$nextPage}'>Next</a></li>" . PHP_EOL;
+}
+?>
+        </ul>
+      </nav>
+    </nav>
     <div class='modal fade id-modal'>
       <div class='modal-dialog'>
         <div class='modal-content'>
@@ -94,6 +126,8 @@ foreach ($garage->getUsers() as $user) {
     <script src='//code.jquery.com/jquery-3.2.1.min.js' integrity='sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f' crossorigin='anonymous'></script>
     <script src='//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js' integrity='sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q' crossorigin='anonymous'></script>
     <script src='//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js' integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl' crossorigin='anonymous'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/URI.js/1.19.1/URI.min.js' integrity='sha384-p+MfR+v7kwvUVHmsjMiBK3x45fpY3zmJ5X2FICvDqhVP5YJHjfbFDc9f5U1Eba88' crossorigin='anonymous'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/URI.js/1.19.1/jquery.URI.min.js' integrity='sha384-zdBrwYVf1Tu1JfO1GKzBAmCOduwha4jbqoCt2886bKrIFyAslJauxsn9JUKj6col' crossorigin='anonymous'></script>
     <script>
       $(document).ready(function() {
         $('button.id-add').click(function() {
@@ -159,6 +193,10 @@ foreach ($garage->getUsers() as $user) {
 
         $('button.id-nav').click(function() {
           location.href=$(this).data('href');
+        });
+
+        $('a.id-page').click(function() {
+          location.href=URI().removeQuery('page').addQuery('page', $(this).data('page'));
         });
       });
     </script>

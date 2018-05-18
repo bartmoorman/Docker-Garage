@@ -3,7 +3,6 @@ for PIN in ${OPENER_PIN} ${SENSOR_PIN} ${BUTTON_PIN} ${LIGHT_PIN}; do
     if [ "${PIN%:*}" != "${PIN#*:}" ]; then
       if [ ! -L /sys/class/gpio/gpio${PIN%:*} ]; then
         echo ${PIN%:*} > /sys/class/gpio/export
-        usleep 250000
       fi
 
       echo ${PIN#*:} > /sys/class/gpio/gpio${PIN%:*}/direction
