@@ -1,7 +1,6 @@
 <?php
 require_once('inc/garage.class.php');
 $garage = new Garage(true, true, true, false);
-$currentPage = !empty($_REQUEST['page']) ? $_REQUEST['page'] : 1;
 ?>
 <!DOCTYPE html>
 <html lang='en'>
@@ -32,6 +31,7 @@ $currentPage = !empty($_REQUEST['page']) ? $_REQUEST['page'] : 1;
         </thead>
         <tbody>
 <?php
+$currentPage = !empty($_REQUEST['page']) ? $_REQUEST['page'] : 1;
 foreach ($garage->getEvents($currentPage) as $event) {
   $date = date('m/d/Y, h:i A', $event['date']);
   $user_name = !empty($event['last_name']) ? sprintf('%2$s, %1$s', $event['first_name'], $event['last_name']) : $event['first_name'];

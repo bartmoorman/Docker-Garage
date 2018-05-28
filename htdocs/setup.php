@@ -26,7 +26,8 @@ $garage = new Garage(false, true, false, true);
                   <input class='form-control' id='pincode' type='tel' name='pincode' placeholder='Numeric Pin Code' minlength='6' maxlength='6' pattern='[0-9]{6}' required>
                   <input class='form-control' id='first_name' type='text' name='first_name' placeholder='First Name' required>
                   <input class='form-control' id='last_name' type='text' name='last_name' placeholder='Last Name (optional)'>
-                  <input class='form-control' id='email' type='email' name='email' placeholder='Email (optional)'>
+                  <input class='form-control' id='pushover_user' type='text' name='pushover_user' placeholder='Pushover User (optional)' minlegth='30' maxlength='30' pattern='[a-z0-9]{30}'>
+                  <input class='form-control' id='pushover_token' type='text' name='pushover_token' placeholder='Pushover Token (optional)' minlegth='30' maxlength='30' pattern='[a-z0-9]{30}'>
                   <input class='form-control' id='role' type='hidden' name='role' value='admin' required>
                 </div>
               </div>
@@ -45,7 +46,7 @@ $garage = new Garage(false, true, false, true);
       $(document).ready(function() {
         $('form').submit(function(e) {
           e.preventDefault();
-          $.getJSON('src/action.php', {"func": "createUser", "pincode": $('#pincode').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "email": $('#email').val(), "role": $('#role').val()})
+          $.getJSON('src/action.php', {"func": "createUser", "pincode": $('#pincode').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "pushover_user": $('#pushover_user').val(), "pushover_token": $('#pushover_token').val(), "role": $('#role').val()})
             .done(function(data) {
               if (data.success) {
                 location.href = '<?php echo dirname($_SERVER['PHP_SELF']) ?>';

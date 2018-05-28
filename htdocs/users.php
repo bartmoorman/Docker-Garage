@@ -1,7 +1,6 @@
 <?php
 require_once('inc/garage.class.php');
 $garage = new Garage(true, true, true, false);
-$currentPage = !empty($_REQUEST['page']) ? $_REQUEST['page'] : 1;
 ?>
 <!DOCTYPE html>
 <html lang='en'>
@@ -26,7 +25,8 @@ $currentPage = !empty($_REQUEST['page']) ? $_REQUEST['page'] : 1;
             <th><button type='button' class='btn btn-sm btn-outline-success id-add'>Add</button></th>
             <th>Pin Code</th>
             <th>User Name</th>
-            <th>Email</th>
+            <th>Pushover User</th>
+            <th>Pushover Token</th>
             <th>Role</th>
             <th>Begin</th>
             <th>End</th>
@@ -47,7 +47,8 @@ foreach ($garage->getUsers() as $user) {
   }
   echo "            <td>{$user['pincode']}</td>" . PHP_EOL;
   echo "            <td>{$user_name}</td>" . PHP_EOL;
-  echo "            <td>{$user['email']}</td>" . PHP_EOL;
+  echo "            <td>{$user['pushover_user']}</td>" . PHP_EOL;
+  echo "            <td>{$user['pushover_token']}</td>" . PHP_EOL;
   echo "            <td>{$user['role']}</td>" . PHP_EOL;
   echo "            <td>{$begin}</td>" . PHP_EOL;
   echo "            <td>{$end}</td>" . PHP_EOL;
@@ -57,38 +58,6 @@ foreach ($garage->getUsers() as $user) {
         </tbody>
       </table>
     </div>
-    <nav>
-      <nav>
-        <ul class='pagination justify-content-center'>
-<?php
-$pages = ceil($garage->getCount('users') / $garage->pageLimit);
-$group = ceil($currentPage / 5);
-$previousPage = $currentPage - 1;
-$nextPage = $currentPage + 1;
-
-if ($previousPage <= 0) {
-  echo "        <li class='page-item disabled'><a class='page-link'>Previous</a></li>" . PHP_EOL;
-} else {
-  echo "        <li class='page-item'><a class='page-link id-page' data-page='{$previousPage}'>Previous</a></li>" . PHP_EOL;
-}
-
-for ($i=1; $i<=$pages; $i++) {
-  if ($currentPage == $i) {
-    echo "        <li class='page-item disabled'><a class='page-link bg-secondary id-page' data-page='{$i}'>{$i}</a></li>" . PHP_EOL;
-  } elseif (ceil($i / 5) == $group) {
-    echo "        <li class='page-item'><a class='page-link id-page' data-page='{$i}'>{$i}</a></li>" . PHP_EOL;
-  }
-}
-
-if ($nextPage > $pages) {
-  echo "        <li class='page-item disabled'><a class='page-link'>Next</a></li>" . PHP_EOL;
-} else {
-  echo "        <li class='page-item'><a class='page-link id-page' data-page='{$nextPage}'>Next</a></li>" . PHP_EOL;
-}
-?>
-        </ul>
-      </nav>
-    </nav>
     <div class='modal fade id-modal'>
       <div class='modal-dialog'>
         <div class='modal-content'>
@@ -102,7 +71,8 @@ if ($nextPage > $pages) {
                   <input class='form-control' id='pincode' type='tel' name='pincode' placeholder='Numeric Pin Code' minlegth='6' maxlength='6' pattern='[0-9]{6}' required>
                   <input class='form-control' id='first_name' type='text' name='first_name' placeholder='First Name' required>
                   <input class='form-control' id='last_name' type='text' name='last_name' placeholder='Last Name (optional)'>
-                  <input class='form-control' id='email' type='email' name='email' placeholder='Email (optional)'>
+                  <input class='form-control' id='pushover_user' type='text' name='pushover_user' placeholder='Pushover User (optional)' minlegth='30' maxlength='30' pattern='[a-z0-9]{30}'>
+                  <input class='form-control' id='pushover_token' type='text' name='pushover_token' placeholder='Pushover Token (optional)' minlegth='30' maxlength='30' pattern='[a-z0-9]{30}'>
                   <select class='form-control' id='role' name='role' required>
                     <option disabled>Role</option>
                     <option value='user'>user</option>
@@ -126,8 +96,6 @@ if ($nextPage > $pages) {
     <script src='//code.jquery.com/jquery-3.2.1.min.js' integrity='sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f' crossorigin='anonymous'></script>
     <script src='//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js' integrity='sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q' crossorigin='anonymous'></script>
     <script src='//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js' integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl' crossorigin='anonymous'></script>
-    <script src='//cdnjs.cloudflare.com/ajax/libs/URI.js/1.19.1/URI.min.js' integrity='sha384-p+MfR+v7kwvUVHmsjMiBK3x45fpY3zmJ5X2FICvDqhVP5YJHjfbFDc9f5U1Eba88' crossorigin='anonymous'></script>
-    <script src='//cdnjs.cloudflare.com/ajax/libs/URI.js/1.19.1/jquery.URI.min.js' integrity='sha384-zdBrwYVf1Tu1JfO1GKzBAmCOduwha4jbqoCt2886bKrIFyAslJauxsn9JUKj6col' crossorigin='anonymous'></script>
     <script>
       $(document).ready(function() {
         $('button.id-add').click(function() {
@@ -151,7 +119,8 @@ if ($nextPage > $pages) {
                 $('#pincode').val(user.pincode);
                 $('#first_name').val(user.first_name);
                 $('#last_name').val(user.last_name);
-                $('#email').val(user.email);
+                $('#pushover_user').val(user.pushover_user);
+                $('#pushover_token').val(user.pushover_token);
                 $('#role').val(user.role);
                 $('#begin').val(user.begin);
                 $('#end').val(user.end);
@@ -180,7 +149,7 @@ if ($nextPage > $pages) {
 
         $('form').submit(function(e) {
           e.preventDefault();
-          $.getJSON('src/action.php', {"func": $(this).data('func'), "user_id": $(this).data('user_id'), "pincode": $('#pincode').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "email": $('#email').val(), "role": $('#role').val(), "begin": $('#begin').val(), "end": $('#end').val()})
+          $.getJSON('src/action.php', {"func": $(this).data('func'), "user_id": $(this).data('user_id'), "pincode": $('#pincode').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "pushover_user": $('#pushover_user').val(), "pushover_token": $('#pushover_token').val(), "role": $('#role').val(), "begin": $('#begin').val(), "end": $('#end').val()})
             .done(function(data) {
               if (data.success) {
                 location.reload();
@@ -193,10 +162,6 @@ if ($nextPage > $pages) {
 
         $('button.id-nav').click(function() {
           location.href=$(this).data('href');
-        });
-
-        $('a.id-page').click(function() {
-          location.href=URI().removeQuery('page').addQuery('page', $(this).data('page'));
         });
       });
     </script>

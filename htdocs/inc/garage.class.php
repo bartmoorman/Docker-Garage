@@ -9,7 +9,7 @@ class Garage {
   public function __construct($requireConfigured = true, $requireValidSession = true, $requireAdmin = true, $requireIndex = false) {
     session_start();
 
-    if (file_exists($this->dbFile) && is_writable($this->dbFile)) {
+    if (is_writable($this->dbFile)) {
       $this->connectDb();
     } elseif (is_writable(dirname($this->dbFile))) {
       $this->connectDb();
@@ -52,7 +52,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `pincode` INTEGER NOT NULL UNIQUE,
   `first_name` TEXT NOT NULL,
   `last_name` TEXT,
-  `email` TEXT,
+  `pushover_user` TEXT,
+  `pushover_token` TEXT,
   `role` TEXT NOT NULL,
   `begin` INTEGER,
   `end` INTEGER,
@@ -67,7 +68,10 @@ CREATE TABLE IF NOT EXISTS `events` (
   `remote_addr` INTEGER
 );
 EOQ;
-    return $this->dbConn->exec($query);
+    if ($this->dbConn->exec($query)) {
+      return true;
+    }
+    return false;
   }
 
   public function isConfigured($device = null) {
@@ -149,7 +153,7 @@ EOQ;
     return false;
   }
 
-  public function createUser($pincode, $first_name, $last_name = null, $email = null, $role, $begin = null, $end = null) {
+  public function createUser($pincode, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $role, $begin = null, $end = null) {
     $pincode = $this->dbConn->escapeString($pincode);
     $query = <<<EOQ
 SELECT COUNT(*)
@@ -159,21 +163,24 @@ EOQ;
     if (!$this->dbConn->querySingle($query)) {
       $first_name = $this->dbConn->escapeString($first_name);
       $last_name = $this->dbConn->escapeString($last_name);
-      $email = $this->dbConn->escapeString($email);
+      $pushover_user = $this->dbConn->escapeString($pushover_user);
+      $pushover_token = $this->dbConn->escapeString($pushover_token);
       $role = $this->dbConn->escapeString($role);
       $begin = $this->dbConn->escapeString($begin);
       $end = $this->dbConn->escapeString($end);
       $query = <<<EOQ
 INSERT
-INTO `users` (`pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`)
-VALUES ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', STRFTIME('%s', '{$begin}'), STRFTIME('%s', '{$end}'));
+INTO `users` (`pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `role`, `begin`, `end`)
+VALUES ('{$pincode}', '{$first_name}', '{$last_name}', '{$pushover_user}', '{$pushover_token}', '{$role}', STRFTIME('%s', '{$begin}'), STRFTIME('%s', '{$end}'));
 EOQ;
-      return $this->dbConn->exec($query);
+      if ($this->dbConn->exec($query)) {
+        return true;
+      }
     }
     return false;
   }
 
-  public function updateUser($user_id, $pincode, $first_name, $last_name = null, $email = null, $role, $begin = null, $end = null) {
+  public function updateUser($user_id, $pincode, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $role, $begin = null, $end = null) {
     $user_id = $this->dbConn->escapeString($user_id);
     $pincode = $this->dbConn->escapeString($pincode);
     $query = <<<EOQ
@@ -185,16 +192,27 @@ EOQ;
     if (!$this->dbConn->querySingle($query)) {
       $first_name = $this->dbConn->escapeString($first_name);
       $last_name = $this->dbConn->escapeString($last_name);
-      $email = $this->dbConn->escapeString($email);
+      $pushover_user = $this->dbConn->escapeString($pushover_user);
+      $pushover_token = $this->dbConn->escapeString($pushover_token);
       $role = $this->dbConn->escapeString($role);
       $begin = $this->dbConn->escapeString($begin);
       $end = $this->dbConn->escapeString($end);
       $query = <<<EOQ
 UPDATE `users`
-SET (`pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`) = ('{$pincode}', '{$first_name}', '{$last_name}', '{$email}', '{$role}', STRFTIME('%s', '{$begin}'), STRFTIME('%s', '{$end}'))
+SET
+  `pincode` = '{$pincode}',
+  `first_name` = '{$first_name}',
+  `last_name` = '{$last_name}',
+  `pushover_user` = '{$pushover_user}',
+  `pushover_token` = '{$pushover_token}',
+  `role` = '{$role}',
+  `begin` = STRFTIME('%s', '{$begin}'),
+  `end` = STRFTIME('%s', '{$end}')
 WHERE `user_id` = '{$user_id}';
 EOQ;
-      return $this->dbConn->exec($query);
+      if ($this->dbConn->exec($query)) {
+        return true;
+      }
     }
     return false;
   }
@@ -227,16 +245,17 @@ WHERE `user_id` = '{$user_id}';
 EOQ;
         break;
     }
-    return $this->dbConn->exec($query);
+    if ($this->dbConn->exec($query)) {
+      return true;
+    }
+    return false;
   }
 
-  public function getUsers($page = 1) {
-    $start = ($page - 1) * $this->pageLimit;
+  public function getUsers() {
     $query = <<<EOQ
-SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, `begin`, `end`, `disabled`
+SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `role`, `begin`, `end`, `disabled`
 FROM `users`
 ORDER BY `last_name`, `first_name`
-LIMIT {$start}, {$this->pageLimit};
 EOQ;
     if ($users = $this->dbConn->query($query)) {
       $output = array();
@@ -251,7 +270,7 @@ EOQ;
   public function getUserDetails($user_id) {
     $user_id = $this->dbConn->escapeString($user_id);
     $query = <<<EOQ
-SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `email`, `role`, STRFTIME('%Y-%m-%dT%H:%M', DATETIME(`begin`, 'unixepoch')) AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', DATETIME(`end`, 'unixepoch')) AS `end`, `disabled`
+SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `role`, STRFTIME('%Y-%m-%dT%H:%M', DATETIME(`begin`, 'unixepoch')) AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', DATETIME(`end`, 'unixepoch')) AS `end`, `disabled`
 FROM `users`
 WHERE `user_id` = '{$user_id}';
 EOQ;
@@ -261,7 +280,7 @@ EOQ;
     return false;
   }
 
-  public function logEvent($action, $message = array()) {
+  public function putEvent($action, $message = array()) {
     $user_id = array_key_exists('authenticated', $_SESSION) ? $_SESSION['user_id'] : null;
     $action = $this->dbConn->escapeString($action);
     $message = $this->dbConn->escapeString(json_encode($message));
@@ -271,7 +290,10 @@ INSERT
 INTO `events` (`user_id`, `action`, `message`, `remote_addr`)
 VALUES ('{$user_id}', '{$action}', '{$message}', '{$remote_addr}');
 EOQ;
-    return $this->dbConn->exec($query);
+    if ($this->dbConn->exec($query)) {
+      return true;
+    }
+    return false;
   }
 
   public function getCount($type) {
