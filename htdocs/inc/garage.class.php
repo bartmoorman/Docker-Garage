@@ -1,9 +1,9 @@
 <?php
 class Garage {
   private $dbFile = '/config/garage.db';
-  private $dbConn = null;
+  private $dbConn;
   private $devices = array('opener' => null, 'sensor' => null, 'button' => null, 'light' => null);
-  private $gpioValue = '/sys/class/gpio/gpio%d/value';
+  private $gpioValue = '/sys/class/gpio/gpio%u/value';
   public $pageLimit = 20;
 
   public function __construct($requireConfigured = true, $requireValidSession = true, $requireAdmin = true, $requireIndex = false) {
@@ -40,9 +40,12 @@ class Garage {
   }
 
   private function connectDb() {
-    $this->dbConn = new SQLite3($this->dbFile);
-    $this->dbConn->busyTimeout(500);
-    $this->dbConn->exec('PRAGMA journal_mode = WAL');
+    if ($this->dbConn = new SQLite3($this->dbFile)) {
+      $this->dbConn->busyTimeout(500);
+      $this->dbConn->exec('PRAGMA journal_mode = WAL');
+      return true;
+    }
+    return false;
   }
 
   private function initDb() {
@@ -80,11 +83,7 @@ EOQ;
         return true;
       }
     } else {
-      $query = <<<EOQ
-SELECT COUNT(*)
-FROM `users`;
-EOQ;
-      if ($this->dbConn->querySingle($query)) {
+      if ($this->getCount('users')) {
         return true;
       }
     }
@@ -104,7 +103,7 @@ EOQ;
 SELECT COUNT(*)
 FROM `users`
 WHERE `user_id` = '{$user_id}'
-AND `role` LIKE 'admin';
+AND `role` = 'admin';
 EOQ;
     if ($this->dbConn->querySingle($query)) {
       return true;
@@ -270,12 +269,24 @@ EOQ;
   public function getUserDetails($user_id) {
     $user_id = $this->dbConn->escapeString($user_id);
     $query = <<<EOQ
-SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `role`, STRFTIME('%Y-%m-%dT%H:%M', DATETIME(`begin`, 'unixepoch')) AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', DATETIME(`end`, 'unixepoch')) AS `end`, `disabled`
+SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `role`, STRFTIME('%Y-%m-%dT%H:%M', `begin`, 'unixepoch') AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', `end`, 'unixepoch') AS `end`, `disabled`
 FROM `users`
 WHERE `user_id` = '{$user_id}';
 EOQ;
     if ($user = $this->dbConn->querySingle($query, true)) {
       return $user;
+    }
+    return false;
+  }
+
+  public function getCount($type) {
+    $type = $this->dbConn->escapeString($type);
+    $query = <<<EOQ
+SELECT COUNT(*)
+FROM `{$type}`;
+EOQ;
+    if ($count = $this->dbConn->querySingle($query)) {
+      return $count;
     }
     return false;
   }
@@ -296,22 +307,10 @@ EOQ;
     return false;
   }
 
-  public function getCount($type) {
-    $type = $this->dbConn->escapeString($type);
-    $query = <<<EOQ
-SELECT COUNT(*)
-FROM `{$type}`;
-EOQ;
-    if ($count = $this->dbConn->querySingle($query)) {
-      return $count;
-    }
-    return false;
-  }
-
   public function getEvents($page = 1) {
     $start = ($page - 1) * $this->pageLimit;
     $query = <<<EOQ
-SELECT `event_id`, STRFTIME('%s', DATETIME(`date`, 'unixepoch', 'localtime')) AS `date`, `user_id`, `first_name`, `last_name`, `action`, `message`, `remote_addr`, `disabled`
+SELECT `event_id`, STRFTIME('%s', `date`, 'unixepoch', 'localtime') AS `date`, `user_id`, `first_name`, `last_name`, `action`, `message`, `remote_addr`, `disabled`
 FROM `events`
 LEFT JOIN `users` USING (`user_id`)
 ORDER BY `date` DESC

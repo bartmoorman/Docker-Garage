@@ -38,7 +38,7 @@ foreach ($garage->getUsers() as $user) {
   $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
   $begin = !empty($user['begin']) ? date('m/d/Y, h:i A', $user['begin']) : null;
   $end = !empty($user['end']) ? date('m/d/Y, h:i A', $user['end']) : null;
-  $tableClass = $user['disabled'] ? 'text-danger' : 'table-default';
+  $tableClass = $user['disabled'] ? 'text-warning' : 'table-default';
   echo "          <tr class='{$tableClass}'>" . PHP_EOL;
   if ($user['disabled']) {
     echo "            <td><button type='button' class='btn btn-sm btn-outline-warning id-modify' data-action='enable' data-user_id='{$user['user_id']}'>Enable</button></td>" . PHP_EOL;

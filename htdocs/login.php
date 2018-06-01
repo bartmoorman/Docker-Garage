@@ -65,14 +65,14 @@ for ($i=0; $i<6; $i++) {
         var pincode = '';
         var timer;
 
-        $('button.id-number').click(function() {
-          pincode = pincode + $(this).data('number');
+        function addNumberToPin(number) {
+          pincode += number;
           var digit = pincode.length - 1;
           if (digit > 0) {
             clearTimeout(timer);
             $(`input.id-digit:eq(${digit - 1})`).val('*');
           }
-          $(`input.id-digit:eq(${digit})`).addClass('border-success').val($(this).data('number'));
+          $(`input.id-digit:eq(${digit})`).addClass('border-success').val(number);
           timer = setTimeout(function() {
             $(`input.id-digit:eq(${digit})`).val('*');
           }, 750);
@@ -96,12 +96,59 @@ for ($i=0; $i<6; $i++) {
                 $('button.id-clear').prop('disabled', false);
               });
           }
-        });
+        }
 
-        $('button.id-clear').click(function() {
+        function clearPin() {
           clearTimeout(timer);
           pincode = '';
           $('input.id-digit').removeClass('border-success').val('');
+        }
+
+        $(document).keyup(function(event) {
+          switch (true) {
+            case /^[1]$/.test(event.key):
+              addNumberToPin(1);
+              break;
+            case /^[2abc]$/.test(event.key):
+              addNumberToPin(2);
+              break;
+            case /^[3def]$/.test(event.key):
+              addNumberToPin(3);
+              break;
+            case /^[4ghi]$/.test(event.key):
+              addNumberToPin(4);
+              break;
+            case /^[5jkl]$/.test(event.key):
+              addNumberToPin(5);
+              break;
+            case /^[6mno]$/.test(event.key):
+              addNumberToPin(6);
+              break;
+            case /^[7pqrs]$/.test(event.key):
+              addNumberToPin(7);
+              break;
+            case /^[8tuv]$/.test(event.key):
+              addNumberToPin(8);
+              break;
+            case /^[9wxyz]$/.test(event.key):
+              addNumberToPin(9);
+              break;
+            case /^[0]$/.test(event.key):
+              addNumberToPin(0);
+              break;
+            case /^[Bb]ackspace$/.test(event.key):
+            case /^[Dd]elete$/.test(event.key):
+              clearPin();
+              break;
+            }
+        });
+
+        $('button.id-number').click(function() {
+          addNumberToPin($(this).data('number'));
+        });
+
+        $('button.id-clear').click(function() {
+          clearPin();
         });
       });
     </script>
