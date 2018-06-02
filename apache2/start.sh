@@ -14,6 +14,10 @@ usermod -aG gpio apache
 
 chown apache: /config
 
+if [ ! -d /config/sessions ]; then
+    install -o apache -g apache -d /config/sessions
+fi
+
 if [ ! -d /config/httpd/ssl ]; then
     mkdir -p /config/httpd/ssl
     ln -sf /etc/ssl/apache2/server.pem /config/httpd/ssl/garage.crt

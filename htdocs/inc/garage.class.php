@@ -1,4 +1,11 @@
 <?php
+ini_set('session.save_path', '/config/sessions');
+ini_set('session.gc_maxlifetime', 24 * 60 * 60);
+ini_set('session.use_strict_mode', true);
+ini_set('session.cookie_lifetime', 24 * 60 * 60);
+ini_set('session.cookie_secure', true);
+ini_set('session.cookie_httponly', true);
+
 class Garage {
   private $dbFile = '/config/garage.db';
   private $dbConn;
@@ -146,7 +153,7 @@ EOQ;
   }
 
   public function deauthenticateSession() {
-    if (session_destroy()) {
+    if (session_unset() && session_destroy()) {
       return true;
     }
     return false;
