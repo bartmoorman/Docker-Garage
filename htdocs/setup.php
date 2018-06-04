@@ -21,14 +21,34 @@ $garage = new Garage(false, true, false, true);
               <h5 class='modal-title'>Garage Setup</h5>
             </div>
             <div class='modal-body'>
-              <div class='row justify-content-center'>
-                <div class='col-auto'>
-                  <input class='form-control' id='pincode' type='tel' name='pincode' placeholder='Numeric Pin Code' minlength='6' maxlength='6' pattern='[0-9]{6}' required>
-                  <input class='form-control' id='first_name' type='text' name='first_name' placeholder='First Name' required>
-                  <input class='form-control' id='last_name' type='text' name='last_name' placeholder='Last Name (optional)'>
-                  <input class='form-control' id='pushover_user' type='text' name='pushover_user' placeholder='Pushover User (optional)' minlegth='30' maxlength='30' pattern='[a-z0-9]{30}'>
-                  <input class='form-control' id='pushover_token' type='text' name='pushover_token' placeholder='Pushover Token (optional)' minlegth='30' maxlength='30' pattern='[a-z0-9]{30}'>
-                  <input class='form-control' id='role' type='hidden' name='role' value='admin' required>
+              <div class='form-row'>
+                <div class='form-group col'>
+                  <label>Numeric Pin Code</label>
+                  <input class='form-control' id='pincode' type='tel' name='pincode' minlength='6' maxlength='6' pattern='[0-9]{6}' required>
+                </div>
+                <div class='form-group col'>
+                  <label>Role</label>
+                  <input class='form-control' id='role' type='text' name='role' value='admin' readonly required>
+                </div>
+              </div>
+              <div class='form-row'>
+                <div class='form-group col'>
+                  <label>First Name</label>
+                  <input class='form-control' id='first_name' type='text' name='first_name' required>
+                </div>
+                <div class='form-group col'>
+                  <label>Last Name (optional)</label>
+                  <input class='form-control' id='last_name' type='text' name='last_name'>
+                </div>
+              </div>
+              <div class='form-row'>
+                <div class='form-group col'>
+                  <label>Pushover User (optional)</label>
+                  <input class='form-control' id='pushover_user' type='text' name='pushover_user' minlegth='30' maxlength='30' pattern='[a-z0-9]{30}'>
+                </div>
+                <div class='form-group col'>
+                  <label>Pushover Token (optional)</label>
+                  <input class='form-control' id='pushover_token' type='text' name='pushover_token' minlegth='30' maxlength='30' pattern='[a-z0-9]{30}'>
                 </div>
               </div>
             </div>

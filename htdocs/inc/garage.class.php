@@ -1,4 +1,5 @@
 <?php
+ini_set('date.timezone', 'UTC');
 ini_set('session.save_path', '/config/sessions');
 ini_set('session.gc_maxlifetime', 24 * 60 * 60);
 ini_set('session.use_strict_mode', true);

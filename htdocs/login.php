@@ -3,7 +3,7 @@ require_once('inc/garage.class.php');
 $garage = new Garage(true, false, false, true);
 ?>
 <!DOCTYPE html>
-<html class='h-100' lang='en'>
+<html lang='en'>
   <head>
     <title>Garage - Login</title>
     <meta charset='utf-8'>
@@ -16,6 +16,8 @@ $garage = new Garage(true, false, false, true);
     <link rel='stylesheet' href='//use.fontawesome.com/releases/v5.0.12/css/all.css' integrity='sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9' crossorigin='anonymous'>
     <style>
       input.id-digit {
+        width: 42px;
+        height: 52px;
         font-size: 32px;
       }
       button.id-number,button.id-clear {
@@ -24,36 +26,39 @@ $garage = new Garage(true, false, false, true);
       }
     </style>
   </head>
-  <body class='h-100'>
-    <div class='d-flex justify-content-center h-100'>
-      <div class='align-self-center'>
-        <div class='row justify-content-center'>
-          <div class='input-group mb-4 mt-2'>
+  <body>
+    <div class='modal d-block'>
+      <div class='modal-dialog modal-sm modal-dialog-centered'>
+        <div class='modal-content'>
+          <div class='modal-body'>
+            <div class='form-row justify-content-center'>
 <?php
 for ($i=0; $i<6; $i++) {
-  echo "            <input class='form-control bg-secondary text-center text-white m-auto p-0 id-digit' size='1' disabled>" . PHP_EOL;
+  echo "              <div class='form-group my-2 p-0'><input class='form-control bg-secondary text-center text-white p-0 id-digit' size='1' disabled></div>" . PHP_EOL;
 }
 ?>
+            </div>
+            <div class='row justify-content-center'>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='1'><h2 class='my-auto'>1</h2><h5>&nbsp;</h5></button></div>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='2'><h2 class='my-auto'>2</h2><h5>abc</h5></button></div>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='3'><h2 class='my-auto'>3</h2><h5>def</h5></button></div>
+            </div>
+            <div class='row justify-content-center'>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='4'><h2 class='my-auto'>4</h2><h5>ghi</h5></button></div>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='5'><h2 class='my-auto'>5</h2><h5>jkl</h5></button></div>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='6'><h2 class='my-auto'>6</h2><h5>mno</h5></button></div>
+            </div>
+            <div class='row justify-content-center'>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='7'><h2 class='my-auto'>7</h2><h5>pqrs</h5></button></div>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='8'><h2 class='my-auto'>8</h2><h5>tuv</h5></button></div>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='9'><h2 class='my-auto'>9</h2><h5>wxyz</h5></button></div>
+            </div>
+            <div class='row justify-content-center'>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-secondary rounded-circle id-number' disabled></button></div>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='0'><h2 class='my-auto'>0</h2><h5>&nbsp;</h5></button></div>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-danger rounded-circle id-clear'><h5 class='my-auto'>clear</h5></button></div>
+            </div>
           </div>
-        </div>
-        <div class='row justify-content-center'>
-          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='1'><h2 class='my-auto'>1</h2><h5>&nbsp</h5></button></div>
-          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='2'><h2 class='my-auto'>2</h2><h5>abc</h5></button></div>
-          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='3'><h2 class='my-auto'>3</h2><h5>def</h5></button></div>
-        </div>
-        <div class='row justify-content-center'>
-          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='4'><h2 class='my-auto'>4</h2><h5>ghi</h5></button></div>
-          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='5'><h2 class='my-auto'>5</h2><h5>jkl</h5></button></div>
-          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='6'><h2 class='my-auto'>6</h2><h5>mno</h5></button></div>
-        </div>
-        <div class='row justify-content-center'>
-          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='7'><h2 class='my-auto'>7</h2><h5>pqrs</h5></button></div>
-          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='8'><h2 class='my-auto'>8</h2><h5>tuv</h5></button></div>
-          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='9'><h2 class='my-auto'>9</h2><h5>wxyz</h5></button></div>
-        </div>
-        <div class='row justify-content-end'>
-          <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='0'><h2 class='my-auto'>0</h2><h5>&nbsp;</h5></button></div>
-          <div class='col-auto m-2 p-0'><button class='btn btn-outline-danger rounded-circle id-clear'><h5 class='my-auto'>clear</h5></button></div>
         </div>
       </div>
     </div>
@@ -79,14 +84,14 @@ for ($i=0; $i<6; $i++) {
           if (pincode.length == 6) {
             $('button.id-number').prop('disabled', true);
             $('button.id-clear').prop('disabled', true);
-            $.getJSON('src/action.php', {"func": "validatePinCode", "pincode": pincode})
+            $.getJSON('src/action.php', {"func": "authenticateSession", "pincode": pincode})
               .done(function(data) {
                 if (data.success) {
                   location.href = '<?php echo dirname($_SERVER['PHP_SELF']) ?>';
                 }
               })
               .fail(function(jqxhr, textStatus, errorThrown) {
-                console.log(`validatePinCode failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
+                console.log(`authenticateSession failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
               })
               .always(function() {
                 clearTimeout(timer);

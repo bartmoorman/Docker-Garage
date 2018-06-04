@@ -3,7 +3,7 @@ require_once('inc/garage.class.php');
 $garage = new Garage(true, true, false, false);
 ?>
 <!DOCTYPE html>
-<html class='h-100' lang='en'>
+<html lang='en'>
   <head>
     <title>Garage - Index</title>
     <meta charset='utf-8'>
@@ -11,8 +11,17 @@ $garage = new Garage(true, true, false, false);
     <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' integrity='sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm' crossorigin='anonymous'>
     <link rel='stylesheet' href='//bootswatch.com/4/darkly/bootstrap.min.css'>
     <link rel='stylesheet' href='//use.fontawesome.com/releases/v5.0.12/css/all.css' integrity='sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9' crossorigin='anonymous'>
+    <style>
+      div.modal {
+        z-index: auto;
+      }
+      div.modal-content {
+        background-color: inherit;
+        border: 0;
+      }
+    </style>
   </head>
-  <body class='h-100'>
+  <body>
 <?php
 if ($garage->isAdmin()) {
   $homeLoc = dirname($_SERVER['PHP_SELF']);
@@ -23,18 +32,22 @@ if ($garage->isAdmin()) {
   echo "    </nav>" . PHP_EOL;
 }
 ?>
-    <div class='d-flex justify-content-center h-100'>
-      <div class='align-self-center'>
+    <div class='modal d-block'>
+      <div class='modal-dialog modal-sm modal-dialog-centered'>
+        <div class='modal-content'>
+          <div class='modal-body'>
 <?php
 foreach (array('opener', 'light') as $device) {
   if ($garage->isConfigured($device)) {
     $button = strtoupper($device);
-    echo "        <div class='row justify-content-center'>" . PHP_EOL;
-    echo "          <div class='col-auto my-2'><button class='btn btn-outline-info btn-lg id-activate' data-device='{$device}'><h1 class='my-1'>{$button}</h1></button></div>" . PHP_EOL;
-    echo "        </div>" . PHP_EOL;
+    echo "            <div class='row justify-content-center'>" . PHP_EOL;
+    echo "              <div class='col-auto my-2'><button class='btn btn-outline-info btn-lg id-activate' data-device='{$device}'><h1 class='my-1'>{$button}</h1></button></div>" . PHP_EOL;
+    echo "            </div>" . PHP_EOL;
   }
 }
 ?>
+          </div>
+        </div>
       </div>
     </div>
     <script src='//code.jquery.com/jquery-3.2.1.min.js' integrity='sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f' crossorigin='anonymous'></script>
@@ -44,7 +57,7 @@ foreach (array('opener', 'light') as $device) {
       $(document).ready(function() {
         $('button.id-activate').click(function() {
           $('button.id-activate').prop('disabled', true);
-          $.getJSON('src/action.php', {"func": "activateDevice", "device": $(this).data('device')})
+          $.getJSON('src/action.php', {"func": "doActivate", "device": $(this).data('device')})
             .done(function(data) {
               if (data.success) {
                 alert('Success!');
@@ -53,7 +66,7 @@ foreach (array('opener', 'light') as $device) {
               }
             })
             .fail(function(jqxhr, textStatus, errorThrown) {
-              console.log(`activateDevice failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
+              console.log(`doActivate failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
             })
             .always(function() {
               $('button.id-activate').prop('disabled', false);

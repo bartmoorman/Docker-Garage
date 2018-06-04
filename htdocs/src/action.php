@@ -7,7 +7,7 @@ $log = array();
 $putEvent = true;
 
 switch ($_REQUEST['func']) {
-  case 'validatePinCode':
+  case 'authenticateSession':
     if (!empty($_REQUEST['pincode'])) {
       $output['success'] = $garage->authenticateSession($_REQUEST['pincode']);
       $log['pincode'] = $_REQUEST['pincode'];
@@ -69,7 +69,7 @@ switch ($_REQUEST['func']) {
       $output['message'] = 'Unauthorized';
     }
     break;
-  case 'userDetails':
+  case 'getUserDetails':
     if ($garage->isValidSession() && $garage->isAdmin()) {
       if (!empty($_REQUEST['user_id'])) {
         if ($output['data'] = $garage->getUserDetails($_REQUEST['user_id'])) {
@@ -88,7 +88,7 @@ switch ($_REQUEST['func']) {
       $output['message'] = 'Unauthorized';
     }
     break;
-  case 'activateDevice':
+  case 'doActivate':
     if ($garage->isValidSession()) {
       if (!empty($_REQUEST['device'])) {
         $output['success'] = $garage->doActivate($_REQUEST['device']);
