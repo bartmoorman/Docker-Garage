@@ -23,9 +23,10 @@ switch ($_REQUEST['func']) {
         $last_name = !empty($_REQUEST['last_name']) ? $_REQUEST['last_name'] : null;
         $pushover_user = !empty($_REQUEST['pushover_user']) ? $_REQUEST['pushover_user'] : null;
         $pushover_token = !empty($_REQUEST['pushover_token']) ? $_REQUEST['pushover_token'] : null;
+        $pushover_sound = !empty($_REQUEST['pushover_sound']) ? $_REQUEST['pushover_sound'] : null;
         $begin = !empty($_REQUEST['begin']) ? $_REQUEST['begin'] : null;
         $end = !empty($_REQUEST['end']) ? $_REQUEST['end'] : null;
-        $output['success'] = $garage->createUser($_REQUEST['pincode'], $_REQUEST['first_name'], $last_name, $pushover_user, $pushover_token, $_REQUEST['role'], $begin, $end);
+        $output['success'] = $garage->createUser($_REQUEST['pincode'], $_REQUEST['first_name'], $last_name, $pushover_user, $pushover_token, $pushover_sound, $_REQUEST['role'], $begin, $end);
       } else {
         $output['success'] = false;
         $output['message'] = 'Missing arguments';
@@ -41,9 +42,10 @@ switch ($_REQUEST['func']) {
         $last_name = !empty($_REQUEST['last_name']) ? $_REQUEST['last_name'] : null;
         $pushover_user = !empty($_REQUEST['pushover_user']) ? $_REQUEST['pushover_user'] : null;
         $pushover_token = !empty($_REQUEST['pushover_token']) ? $_REQUEST['pushover_token'] : null;
+        $pushover_sound = !empty($_REQUEST['pushover_sound']) ? $_REQUEST['pushover_sound'] : null;
         $begin = !empty($_REQUEST['begin']) ? $_REQUEST['begin'] : null;
         $end = !empty($_REQUEST['end']) ? $_REQUEST['end'] : null;
-        $output['success'] = $garage->updateUser($_REQUEST['user_id'], $_REQUEST['pincode'], $_REQUEST['first_name'], $last_name, $pushover_user, $pushover_token, $_REQUEST['role'], $begin, $end);
+        $output['success'] = $garage->updateUser($_REQUEST['user_id'], $_REQUEST['pincode'], $_REQUEST['first_name'], $last_name, $pushover_user, $pushover_token, $pushover_sound, $_REQUEST['role'], $begin, $end);
         $log['user_id'] = $_REQUEST['user_id'];
       } else {
         $output['success'] = false;

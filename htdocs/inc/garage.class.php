@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `last_name` TEXT,
   `pushover_user` TEXT,
   `pushover_token` TEXT,
+  `pushover_sound` TEXT,
   `role` TEXT NOT NULL,
   `begin` INTEGER,
   `end` INTEGER,
@@ -160,7 +161,7 @@ EOQ;
     return false;
   }
 
-  public function createUser($pincode, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $role, $begin = null, $end = null) {
+  public function createUser($pincode, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $pushover_sound = null, $role, $begin = null, $end = null) {
     $pincode = $this->dbConn->escapeString($pincode);
     $query = <<<EOQ
 SELECT COUNT(*)
@@ -172,13 +173,14 @@ EOQ;
       $last_name = $this->dbConn->escapeString($last_name);
       $pushover_user = $this->dbConn->escapeString($pushover_user);
       $pushover_token = $this->dbConn->escapeString($pushover_token);
+      $pushover_sound = $this->dbConn->escapeString($pushover_sound);
       $role = $this->dbConn->escapeString($role);
       $begin = $this->dbConn->escapeString($begin);
       $end = $this->dbConn->escapeString($end);
       $query = <<<EOQ
 INSERT
-INTO `users` (`pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `role`, `begin`, `end`)
-VALUES ('{$pincode}', '{$first_name}', '{$last_name}', '{$pushover_user}', '{$pushover_token}', '{$role}', STRFTIME('%s', '{$begin}'), STRFTIME('%s', '{$end}'));
+INTO `users` (`pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`, `role`, `begin`, `end`)
+VALUES ('{$pincode}', '{$first_name}', '{$last_name}', '{$pushover_user}', '{$pushover_token}', '{$pushover_sound}', '{$role}', STRFTIME('%s', '{$begin}'), STRFTIME('%s', '{$end}'));
 EOQ;
       if ($this->dbConn->exec($query)) {
         return true;
@@ -187,7 +189,7 @@ EOQ;
     return false;
   }
 
-  public function updateUser($user_id, $pincode, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $role, $begin = null, $end = null) {
+  public function updateUser($user_id, $pincode, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $pushover_sound = null, $role, $begin = null, $end = null) {
     $user_id = $this->dbConn->escapeString($user_id);
     $pincode = $this->dbConn->escapeString($pincode);
     $query = <<<EOQ
@@ -201,6 +203,7 @@ EOQ;
       $last_name = $this->dbConn->escapeString($last_name);
       $pushover_user = $this->dbConn->escapeString($pushover_user);
       $pushover_token = $this->dbConn->escapeString($pushover_token);
+      $pushover_sound = $this->dbConn->escapeString($pushover_sound);
       $role = $this->dbConn->escapeString($role);
       $begin = $this->dbConn->escapeString($begin);
       $end = $this->dbConn->escapeString($end);
@@ -212,6 +215,7 @@ SET
   `last_name` = '{$last_name}',
   `pushover_user` = '{$pushover_user}',
   `pushover_token` = '{$pushover_token}',
+  `pushover_sound` = '{$pushover_sound}',
   `role` = '{$role}',
   `begin` = STRFTIME('%s', '{$begin}'),
   `end` = STRFTIME('%s', '{$end}')
@@ -260,7 +264,7 @@ EOQ;
 
   public function getUsers() {
     $query = <<<EOQ
-SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `role`, `begin`, `end`, `disabled`
+SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`, `role`, `begin`, `end`, `disabled`
 FROM `users`
 ORDER BY `last_name`, `first_name`
 EOQ;
@@ -277,7 +281,7 @@ EOQ;
   public function getUserDetails($user_id) {
     $user_id = $this->dbConn->escapeString($user_id);
     $query = <<<EOQ
-SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `role`, STRFTIME('%Y-%m-%dT%H:%M', `begin`, 'unixepoch') AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', `end`, 'unixepoch') AS `end`, `disabled`
+SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`, `role`, STRFTIME('%Y-%m-%dT%H:%M', `begin`, 'unixepoch') AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', `end`, 'unixepoch') AS `end`, `disabled`
 FROM `users`
 WHERE `user_id` = '{$user_id}';
 EOQ;

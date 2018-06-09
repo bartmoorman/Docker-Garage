@@ -111,6 +111,38 @@ foreach ($garage->getUsers() as $user) {
                   <input class='form-control' id='end' type='datetime-local' name='end'>
                 </div>
               </div>
+              <div class='form-row'>
+                <div class='form-group col'>
+                  <label>Pushover Sound (optional)</label>
+                  <select class='form-control' id='pushover_sound' name='pushover_sound'>
+                    <option value=''>User Default</option>
+<?php
+$sounds = array(
+  'pushover' => 'Pushover (default)',
+  'bike' => 'Bike', 'bugle' => 'Bugle',
+  'cashregister' => 'Cash Register', 'classical' => 'Classical', 'cosmic' => 'Cosmic',
+  'falling' => 'Falling',
+  'gamelan' => 'Gamelan',
+  'incoming' => 'Incoming', 'intermission' => 'Intermission',
+  'magic' => 'Magic', 'mechanical' => 'Mechanical',
+  'pianobar' => 'Piano Bar',
+  'siren' => 'Siren', 'spacealarm' => 'Space Alarm',
+  'tugboat' => 'Tug Boat',
+  'alien' => 'Alien Alarm (long)',
+  'climb' => 'Climb (long)',
+  'persistent' => 'Persistent (long)',
+  'echo' => 'Pushover Echo (long)',
+  'updown' => 'Up Down (long)',
+  'none' => 'None (silent)'
+);
+foreach ($sounds as $value => $text) {
+  echo "                    <option value='{$value}'>{$text}</option>" . PHP_EOL;
+}
+?>
+                  </select>
+                  <small class='form-text'><a href='https://pushover.net/api#sounds' target='_blank'>Listen</a></small>
+                </div>
+              </div>
             </div>
             <div class='modal-footer'>
               <button type='button' class='btn btn-outline-warning id-modify id-volatile' data-action='disable'>Disable</button>
@@ -150,6 +182,7 @@ foreach ($garage->getUsers() as $user) {
                 $('#last_name').val(user.last_name);
                 $('#pushover_user').val(user.pushover_user);
                 $('#pushover_token').val(user.pushover_token);
+                $('#pushover_sound').val(user.pushover_sound);
                 $('#role').val(user.role);
                 $('#begin').val(user.begin);
                 $('#end').val(user.end);
@@ -178,7 +211,7 @@ foreach ($garage->getUsers() as $user) {
 
         $('form').submit(function(e) {
           e.preventDefault();
-          $.getJSON('src/action.php', {"func": $(this).data('func'), "user_id": $(this).data('user_id'), "pincode": $('#pincode').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "pushover_user": $('#pushover_user').val(), "pushover_token": $('#pushover_token').val(), "role": $('#role').val(), "begin": $('#begin').val(), "end": $('#end').val()})
+          $.getJSON('src/action.php', {"func": $(this).data('func'), "user_id": $(this).data('user_id'), "pincode": $('#pincode').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "pushover_user": $('#pushover_user').val(), "pushover_token": $('#pushover_token').val(), "pushover_sound": $('#pushover_sound').val(), "role": $('#role').val(), "begin": $('#begin').val(), "end": $('#end').val()})
             .done(function(data) {
               if (data.success) {
                 location.reload();
