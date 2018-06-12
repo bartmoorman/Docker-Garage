@@ -15,10 +15,6 @@ $garage = new Garage(true, true, false, false);
       div.modal {
         z-index: auto;
       }
-      div.modal-content {
-        background-color: inherit;
-        border: 0;
-      }
     </style>
   </head>
   <body>
@@ -57,7 +53,7 @@ foreach (array('opener', 'light') as $device) {
       $(document).ready(function() {
         $('button.id-activate').click(function() {
           $('button.id-activate').prop('disabled', true);
-          $.getJSON('src/action.php', {"func": "doActivate", "device": $(this).data('device')})
+          $.get('src/action.php', {"func": "doActivate", "device": $(this).data('device')})
             .done(function(data) {
               if (data.success) {
                 alert('Success!');

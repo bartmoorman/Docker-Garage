@@ -23,32 +23,24 @@ $garage = new Garage(false, true, false, true);
             <div class='modal-body'>
               <div class='form-row'>
                 <div class='form-group col'>
-                  <label>Numeric Pin Code</label>
-                  <input class='form-control' id='pincode' type='tel' name='pincode' minlength='6' maxlength='6' pattern='[0-9]{6}' required>
-                </div>
-                <div class='form-group col'>
-                  <label>Role</label>
-                  <input class='form-control' id='role' type='text' name='role' value='admin' readonly required>
+                  <label>PIN <sup class='text-danger'>*</sup></label>
+                  <input class='form-control' id='pin' type='tel' name='pin' minlength='6' maxlength='6' pattern='[0-9]{6}' autofocus required>
                 </div>
               </div>
               <div class='form-row'>
                 <div class='form-group col'>
-                  <label>First Name</label>
+                  <label>First Name <sup class='text-danger'>*</sup></label>
                   <input class='form-control' id='first_name' type='text' name='first_name' required>
                 </div>
                 <div class='form-group col'>
-                  <label>Last Name (optional)</label>
+                  <label>Last Name</label>
                   <input class='form-control' id='last_name' type='text' name='last_name'>
                 </div>
               </div>
               <div class='form-row'>
                 <div class='form-group col'>
-                  <label>Pushover User (optional)</label>
-                  <input class='form-control' id='pushover_user' type='text' name='pushover_user' minlegth='30' maxlength='30' pattern='[a-z0-9]{30}'>
-                </div>
-                <div class='form-group col'>
-                  <label>Pushover Token (optional)</label>
-                  <input class='form-control' id='pushover_token' type='text' name='pushover_token' minlegth='30' maxlength='30' pattern='[a-z0-9]{30}'>
+                  <label>Role <sup class='text-danger'>*</sup></label>
+                  <input class='form-control' id='role' type='text' name='role' value='admin' readonly required>
                 </div>
               </div>
             </div>
@@ -66,7 +58,7 @@ $garage = new Garage(false, true, false, true);
       $(document).ready(function() {
         $('form').submit(function(e) {
           e.preventDefault();
-          $.getJSON('src/action.php', {"func": "createUser", "pincode": $('#pincode').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "pushover_user": $('#pushover_user').val(), "pushover_token": $('#pushover_token').val(), "role": $('#role').val()})
+          $.post('src/action.php', {"func": "createUser", "pin": $('#pin').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "role": $('#role').val()})
             .done(function(data) {
               if (data.success) {
                 location.href = '<?php echo dirname($_SERVER['PHP_SELF']) ?>';

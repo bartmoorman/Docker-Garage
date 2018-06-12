@@ -54,7 +54,7 @@ for ($i=0; $i<6; $i++) {
               <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='9'><h2 class='my-auto'>9</h2><h5>wxyz</h5></button></div>
             </div>
             <div class='row justify-content-center'>
-              <div class='col-auto m-2 p-0'><button class='btn btn-outline-secondary rounded-circle id-number' disabled></button></div>
+              <div class='col-auto m-2 p-0'><button class='btn btn-outline-secondary rounded-circle border-0 id-number' disabled></button></div>
               <div class='col-auto m-2 p-0'><button class='btn btn-outline-info rounded-circle id-number' data-number='0'><h2 class='my-auto'>0</h2><h5>&nbsp;</h5></button></div>
               <div class='col-auto m-2 p-0'><button class='btn btn-outline-danger rounded-circle id-clear'><h5 class='my-auto'>clear</h5></button></div>
             </div>
@@ -67,12 +67,12 @@ for ($i=0; $i<6; $i++) {
     <script src='//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js' integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl' crossorigin='anonymous'></script>
     <script>
       $(document).ready(function() {
-        var pincode = '';
+        var pin = '';
         var timer;
 
         function addNumberToPin(number) {
-          pincode += number;
-          var digit = pincode.length - 1;
+          pin += number;
+          var digit = pin.length - 1;
           if (digit > 0) {
             clearTimeout(timer);
             $(`input.id-digit:eq(${digit - 1})`).val('*');
@@ -81,10 +81,10 @@ for ($i=0; $i<6; $i++) {
           timer = setTimeout(function() {
             $(`input.id-digit:eq(${digit})`).val('*');
           }, 750);
-          if (pincode.length == 6) {
+          if (pin.length == 6) {
             $('button.id-number').prop('disabled', true);
             $('button.id-clear').prop('disabled', true);
-            $.getJSON('src/action.php', {"func": "authenticateSession", "pincode": pincode})
+            $.post('src/action.php', {"func": "authenticateSession", "pin": pin})
               .done(function(data) {
                 if (data.success) {
                   location.href = '<?php echo dirname($_SERVER['PHP_SELF']) ?>';
@@ -95,7 +95,7 @@ for ($i=0; $i<6; $i++) {
               })
               .always(function() {
                 clearTimeout(timer);
-                pincode = '';
+                pin = '';
                 $('input.id-digit').removeClass('border-success').val('');
                 $('button.id-number').prop('disabled', false);
                 $('button.id-clear').prop('disabled', false);
@@ -105,7 +105,7 @@ for ($i=0; $i<6; $i++) {
 
         function clearPin() {
           clearTimeout(timer);
-          pincode = '';
+          pin = '';
           $('input.id-digit').removeClass('border-success').val('');
         }
 

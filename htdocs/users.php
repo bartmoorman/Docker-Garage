@@ -70,11 +70,23 @@ foreach ($garage->getUsers() as $user) {
             <div class='modal-body'>
               <div class='form-row'>
                 <div class='form-group col'>
-                  <label>Numeric Pin Code</label>
-                  <input class='form-control' id='pincode' type='tel' name='pincode' minlegth='6' maxlength='6' pattern='[0-9]{6}' required>
+                  <label>PIN <sup class='text-danger'>*</sup></label>
+                  <input class='form-control' id='pin' type='tel' name='pin' minlegth='6' maxlength='6' pattern='[0-9]{6}' required>
+                </div>
+              </div>
+              <div class='form-row'>
+                <div class='form-group col'>
+                  <label>First Name <sup class='text-danger'>*</sup></label>
+                  <input class='form-control' id='first_name' type='text' name='first_name' required>
                 </div>
                 <div class='form-group col'>
-                  <label>Role</label>
+                  <label>Last Name</label>
+                  <input class='form-control' id='last_name' type='text' name='last_name''>
+                </div>
+              </div>
+              <div class='form-row'>
+                <div class='form-group col'>
+                  <label>Role <sup class='text-danger'>*</sup></label>
                   <select class='form-control' id='role' name='role' required>
                     <option value='user'>user</option>
                     <option value='admin'>admin</option>
@@ -83,37 +95,17 @@ foreach ($garage->getUsers() as $user) {
               </div>
               <div class='form-row'>
                 <div class='form-group col'>
-                  <label>First Name</label>
-                  <input class='form-control' id='first_name' type='text' name='first_name' required>
+                  <label>Pushover User Key</label>
+                  <input class='form-control' id='pushover_user' type='text' name='pushover_user' minlegth='30' maxlength='30' pattern='[A-Za-z0-9]{30}'>
                 </div>
                 <div class='form-group col'>
-                  <label>Last Name (optional)</label>
-                  <input class='form-control' id='last_name' type='text' name='last_name''>
-                </div>
-              </div>
-              <div class='form-row'>
-                <div class='form-group col'>
-                  <label>Pushover User (optional)</label>
-                  <input class='form-control' id='pushover_user' type='text' name='pushover_user' minlegth='30' maxlength='30' pattern='[a-z0-9]{30}'>
-                </div>
-                <div class='form-group col'>
-                  <label>Pushover Token (optional)</label>
-                  <input class='form-control' id='pushover_token' type='text' name='pushover_token' minlegth='30' maxlength='30' pattern='[a-z0-9]{30}'>
+                  <label>Pushover App. Token</label>
+                  <input class='form-control' id='pushover_token' type='text' name='pushover_token' minlegth='30' maxlength='30' pattern='[A-Za-z0-9]{30}'>
                 </div>
               </div>
               <div class='form-row'>
                 <div class='form-group col'>
-                  <label>Begin (optional)</label>
-                  <input class='form-control' id='begin' type='datetime-local' name='begin'>
-                </div>
-                <div class='form-group col'>
-                  <label>End (optional)</label>
-                  <input class='form-control' id='end' type='datetime-local' name='end'>
-                </div>
-              </div>
-              <div class='form-row'>
-                <div class='form-group col'>
-                  <label>Pushover Sound (optional)</label>
+                  <label>Pushover Sound</label>
                   <select class='form-control' id='pushover_sound' name='pushover_sound'>
                     <option value=''>User Default</option>
 <?php
@@ -140,7 +132,16 @@ foreach ($sounds as $value => $text) {
 }
 ?>
                   </select>
-                  <small class='form-text'><a href='https://pushover.net/api#sounds' target='_blank'>Listen</a></small>
+                </div>
+              </div>
+              <div class='form-row'>
+                <div class='form-group col'>
+                  <label>Begin</label>
+                  <input class='form-control' id='begin' type='datetime-local' name='begin'>
+                </div>
+                <div class='form-group col'>
+                  <label>End</label>
+                  <input class='form-control' id='end' type='datetime-local' name='end'>
                 </div>
               </div>
             </div>
@@ -172,12 +173,12 @@ foreach ($sounds as $value => $text) {
           $('form').removeData('user_id').data('func', 'updateUser').trigger('reset');
           $('button.id-modify.id-volatile').removeClass('d-none').removeData('user_id');
           $('button.id-submit').removeClass('btn-success').addClass('btn-info').text('Save');
-          $.getJSON('src/action.php', {"func": "getUserDetails", "user_id": $(this).data('user_id')})
+          $.get('src/action.php', {"func": "getUserDetails", "user_id": $(this).data('user_id')})
             .done(function(data) {
               if (data.success) {
                 user = data.data;
                 $('form').data('user_id', user.user_id);
-                $('#pincode').val(user.pincode);
+                $('#pin').val(user.pin);
                 $('#first_name').val(user.first_name);
                 $('#last_name').val(user.last_name);
                 $('#pushover_user').val(user.pushover_user);
@@ -197,7 +198,7 @@ foreach ($sounds as $value => $text) {
 
         $('button.id-modify').click(function() {
           if (confirm(`Want to ${$(this).data('action').toUpperCase()} user ${$(this).data('user_id')}?`)) {
-            $.getJSON('src/action.php', {"func": "modifyUser", "action": $(this).data('action'), "user_id": $(this).data('user_id')})
+            $.get('src/action.php', {"func": "modifyUser", "action": $(this).data('action'), "user_id": $(this).data('user_id')})
               .done(function(data) {
                 if (data.success) {
                   location.reload();
@@ -211,7 +212,7 @@ foreach ($sounds as $value => $text) {
 
         $('form').submit(function(e) {
           e.preventDefault();
-          $.getJSON('src/action.php', {"func": $(this).data('func'), "user_id": $(this).data('user_id'), "pincode": $('#pincode').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "pushover_user": $('#pushover_user').val(), "pushover_token": $('#pushover_token').val(), "pushover_sound": $('#pushover_sound').val(), "role": $('#role').val(), "begin": $('#begin').val(), "end": $('#end').val()})
+          $.post('src/action.php', {"func": $(this).data('func'), "user_id": $(this).data('user_id'), "pin": $('#pin').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "pushover_user": $('#pushover_user').val(), "pushover_token": $('#pushover_token').val(), "pushover_sound": $('#pushover_sound').val(), "role": $('#role').val(), "begin": $('#begin').val(), "end": $('#end').val()})
             .done(function(data) {
               if (data.success) {
                 location.reload();
