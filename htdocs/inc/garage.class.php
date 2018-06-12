@@ -60,7 +60,7 @@ class Garage {
     $query = <<<EOQ
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` INTEGER PRIMARY KEY AUTOINCREMENT,
-  `pincode` INTEGER NOT NULL UNIQUE,
+  `pin` INTEGER NOT NULL UNIQUE,
   `first_name` TEXT NOT NULL,
   `last_name` TEXT,
   `pushover_user` TEXT,
@@ -137,13 +137,13 @@ EOQ;
     return false;
   }
 
-  public function authenticateSession($pincode) {
-    if ($this->isValidUser('pincode', $pincode)) {
-      $pincode = $this->dbConn->escapeString($pincode);
+  public function authenticateSession($pin) {
+    if ($this->isValidUser('pin', $pin)) {
+      $pin = $this->dbConn->escapeString($pin);
       $query = <<<EOQ
 SELECT `user_id`
 FROM `users`
-WHERE `pincode` = '{$pincode}';
+WHERE `pin` = '{$pin}';
 EOQ;
       if ($user_id = $this->dbConn->querySingle($query)) {
         $_SESSION['authenticated'] = true;
@@ -161,12 +161,12 @@ EOQ;
     return false;
   }
 
-  public function createUser($pincode, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $pushover_sound = null, $role, $begin = null, $end = null) {
-    $pincode = $this->dbConn->escapeString($pincode);
+  public function createUser($pin, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $pushover_sound = null, $role, $begin = null, $end = null) {
+    $pin = $this->dbConn->escapeString($pin);
     $query = <<<EOQ
 SELECT COUNT(*)
 FROM `users`
-WHERE `pincode` = '{$pincode}';
+WHERE `pin` = '{$pin}';
 EOQ;
     if (!$this->dbConn->querySingle($query)) {
       $first_name = $this->dbConn->escapeString($first_name);
@@ -179,8 +179,8 @@ EOQ;
       $end = $this->dbConn->escapeString($end);
       $query = <<<EOQ
 INSERT
-INTO `users` (`pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`, `role`, `begin`, `end`)
-VALUES ('{$pincode}', '{$first_name}', '{$last_name}', '{$pushover_user}', '{$pushover_token}', '{$pushover_sound}', '{$role}', STRFTIME('%s', '{$begin}'), STRFTIME('%s', '{$end}'));
+INTO `users` (`pin`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`, `role`, `begin`, `end`)
+VALUES ('{$pin}', '{$first_name}', '{$last_name}', '{$pushover_user}', '{$pushover_token}', '{$pushover_sound}', '{$role}', STRFTIME('%s', '{$begin}'), STRFTIME('%s', '{$end}'));
 EOQ;
       if ($this->dbConn->exec($query)) {
         return true;
@@ -189,14 +189,14 @@ EOQ;
     return false;
   }
 
-  public function updateUser($user_id, $pincode, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $pushover_sound = null, $role, $begin = null, $end = null) {
+  public function updateUser($user_id, $pin, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $pushover_sound = null, $role, $begin = null, $end = null) {
     $user_id = $this->dbConn->escapeString($user_id);
-    $pincode = $this->dbConn->escapeString($pincode);
+    $pin = $this->dbConn->escapeString($pin);
     $query = <<<EOQ
 SELECT COUNT(*)
 FROM `users`
 WHERE `user_id` != '{$user_id}'
-AND `pincode` = '{$pincode}';
+AND `pin` = '{$pin}';
 EOQ;
     if (!$this->dbConn->querySingle($query)) {
       $first_name = $this->dbConn->escapeString($first_name);
@@ -210,7 +210,7 @@ EOQ;
       $query = <<<EOQ
 UPDATE `users`
 SET
-  `pincode` = '{$pincode}',
+  `pin` = '{$pin}',
   `first_name` = '{$first_name}',
   `last_name` = '{$last_name}',
   `pushover_user` = '{$pushover_user}',
@@ -264,7 +264,7 @@ EOQ;
 
   public function getUsers() {
     $query = <<<EOQ
-SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`, `role`, `begin`, `end`, `disabled`
+SELECT `user_id`, SUBSTR('000000'||`pin`,-6) AS `pin`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`, `role`, `begin`, `end`, `disabled`
 FROM `users`
 ORDER BY `last_name`, `first_name`
 EOQ;
@@ -281,7 +281,7 @@ EOQ;
   public function getUserDetails($user_id) {
     $user_id = $this->dbConn->escapeString($user_id);
     $query = <<<EOQ
-SELECT `user_id`, SUBSTR('000000'||`pincode`,-6) AS `pincode`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`, `role`, STRFTIME('%Y-%m-%dT%H:%M', `begin`, 'unixepoch') AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', `end`, 'unixepoch') AS `end`, `disabled`
+SELECT `user_id`, SUBSTR('000000'||`pin`,-6) AS `pin`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`, `role`, STRFTIME('%Y-%m-%dT%H:%M', `begin`, 'unixepoch') AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', `end`, 'unixepoch') AS `end`, `disabled`
 FROM `users`
 WHERE `user_id` = '{$user_id}';
 EOQ;
