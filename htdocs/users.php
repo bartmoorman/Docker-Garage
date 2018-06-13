@@ -39,11 +39,7 @@ foreach ($garage->getUsers() as $user) {
   $end = !empty($user['end']) ? date('m/d/Y, h:i A', $user['end']) : null;
   $tableClass = $user['disabled'] ? 'text-warning' : 'table-default';
   echo "          <tr class='{$tableClass}'>" . PHP_EOL;
-  if ($user['disabled']) {
-    echo "            <td><button type='button' class='btn btn-sm btn-outline-warning id-modify' data-action='enable' data-user_id='{$user['user_id']}'>Enable</button></td>" . PHP_EOL;
-  } else {
-    echo "            <td><button type='button' class='btn btn-sm btn-outline-info id-details' data-user_id='{$user['user_id']}'>Details</button></td>" . PHP_EOL;
-  }
+  echo "            <td><button type='button' class='btn btn-sm btn-outline-info id-details' data-user_id='{$user['user_id']}'>Details</button></td>" . PHP_EOL;
   echo "            <td>{$user['user_id']}</td>" . PHP_EOL;
   echo "            <td>{$user_name}</td>" . PHP_EOL;
   if (!empty($user['pushover_user']) && !empty($user['pushover_token'])) {
@@ -146,8 +142,8 @@ foreach ($sounds as $value => $text) {
               </div>
             </div>
             <div class='modal-footer'>
-              <button type='button' class='btn btn-outline-warning id-modify id-volatile' data-action='disable'>Disable</button>
-              <button type='button' class='btn btn-outline-danger mr-auto id-modify id-volatile' data-action='delete'>Delete</button>
+              <button type='button' class='btn btn-outline-warning id-modify id-volatile'></button>
+              <button type='button' class='btn btn-outline-danger mr-auto id-modify' data-action='delete'>Delete</button>
               <button type='button' class='btn btn-secondary' data-dismiss='modal'>Close</button>
               <button type='submit' class='btn id-submit'></button>
             </div>
@@ -163,7 +159,7 @@ foreach ($sounds as $value => $text) {
         $('button.id-add').click(function() {
           $('h5.modal-title').text('Add User');
           $('form').removeData('user_id').data('func', 'createUser').trigger('reset');
-          $('button.id-modify.id-volatile').addClass('d-none').removeData('user_id');
+          $('button.id-modify').addClass('d-none').removeData('user_id');
           $('button.id-submit').removeClass('btn-info').addClass('btn-success').text('Add');
           $('div.id-modal').modal('toggle');
         });
@@ -171,7 +167,7 @@ foreach ($sounds as $value => $text) {
         $('button.id-details').click(function() {
           $('h5.modal-title').text('User Details');
           $('form').removeData('user_id').data('func', 'updateUser').trigger('reset');
-          $('button.id-modify.id-volatile').removeClass('d-none').removeData('user_id');
+          $('button.id-modify').removeClass('d-none').removeData('user_id');
           $('button.id-submit').removeClass('btn-success').addClass('btn-info').text('Save');
           $.get('src/action.php', {"func": "getUserDetails", "user_id": $(this).data('user_id')})
             .done(function(data) {
@@ -187,7 +183,8 @@ foreach ($sounds as $value => $text) {
                 $('#role').val(user.role);
                 $('#begin').val(user.begin);
                 $('#end').val(user.end);
-                $('button.id-modify.id-volatile').data('user_id', user.user_id);
+                $('button.id-modify.id-volatile').data('action', user.disabled ? 'enable' : 'disable').text(user.disabled ? 'Enable' : 'Disable');
+                $('button.id-modify').data('user_id', user.user_id);
                 $('div.id-modal').modal('toggle');
               }
             })
