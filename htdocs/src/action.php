@@ -10,7 +10,7 @@ switch ($_REQUEST['func']) {
   case 'authenticateSession':
     if (!empty($_REQUEST['pin'])) {
       $output['success'] = $garage->authenticateSession($_REQUEST['pin']);
-      usleep(rand(1000000, 1250000));
+      usleep(rand(750000, 1000000));
     } else {
       $output['success'] = false;
       $output['message'] = 'No pin supplied';
