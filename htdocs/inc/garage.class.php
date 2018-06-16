@@ -1,21 +1,23 @@
 <?php
 ini_set('date.timezone', 'UTC');
-ini_set('session.save_path', '/config/sessions');
-ini_set('session.gc_maxlifetime', 24 * 60 * 60);
-ini_set('session.use_strict_mode', true);
-ini_set('session.cookie_lifetime', 24 * 60 * 60);
-ini_set('session.cookie_secure', true);
-ini_set('session.cookie_httponly', true);
 
 class Garage {
   private $dbFile = '/config/garage.db';
   private $dbConn;
-  private $devices = array('opener' => null, 'sensor' => null, 'button' => null, 'light' => null);
+  private $devices = ['opener' => null, 'sensor' => null, 'button' => null, 'light' => null];
   private $gpioValue = '/sys/class/gpio/gpio%u/value';
   public $pageLimit = 20;
 
   public function __construct($requireConfigured = true, $requireValidSession = true, $requireAdmin = true, $requireIndex = false) {
-    session_start();
+    session_start([
+      'save_path' => '/config/sessions',
+      'name' => '_sess_garage',
+      'gc_maxlifetime' => 60 * 60, * 24
+      'cookie_lifetime' => 60 * 60 * 24,
+      'cookie_secure' => true,
+      'cookie_httponly' => true,
+      'use_strict_mode' => true
+    ]);
 
     if (is_writable($this->dbFile)) {
       $this->connectDb();
@@ -269,7 +271,7 @@ FROM `users`
 ORDER BY `last_name`, `first_name`
 EOQ;
     if ($users = $this->dbConn->query($query)) {
-      $output = array();
+      $output = [];
       while ($user = $users->fetchArray(SQLITE3_ASSOC)) {
         $output[] = $user;
       }
@@ -303,7 +305,7 @@ EOQ;
     return false;
   }
 
-  public function putEvent($action, $message = array()) {
+  public function putEvent($action, $message = []) {
     $user_id = array_key_exists('authenticated', $_SESSION) ? $_SESSION['user_id'] : null;
     $action = $this->dbConn->escapeString($action);
     $message = $this->dbConn->escapeString(json_encode($message));
@@ -329,7 +331,7 @@ ORDER BY `date` DESC
 LIMIT {$start}, {$this->pageLimit};
 EOQ;
     if ($events = $this->dbConn->query($query)) {
-      $output = array();
+      $output = [];
       while ($event = $events->fetchArray(SQLITE3_ASSOC)) {
         $output[] = $event;
       }
@@ -344,6 +346,34 @@ EOQ;
       if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 1)) {
         return true;
       }
+    }
+    return false;
+  }
+
+  public function sendNotifications($messages = []) {
+    $query = <<<EOQ
+SELECT `user_id`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`
+FROM `users`
+WHERE LENGTH(`pushover_user`) AND LENGTH(`pushover_token`)
+AND NOT `disabled`;
+EOQ;
+    if ($messages && $users = $this->dbConn->query($query)) {
+      $ch = curl_init('https://api.pushover.net/1/messages.json');
+      while ($user = $users->fetchArray(SQLITE3_ASSOC)) {
+        $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
+        foreach ($messages as $message) {
+          curl_setopt($ch, CURLOPT_POSTFIELDS, ['user' => $user['pushover_user'], 'token' => $user['pushover_token'], 'message' => $message, 'sound' => $user['pushover_sound']]);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          if (curl_exec($ch) !== false && curl_getinfo($ch, CURLINFO_RESPONSE_CODE) == 200) {
+            $status = 'successful';
+          } else {
+            $status = 'failed';
+          }
+          echo date('Y-m-d H:i:s') . " - notification to {$user_name} (user_id: {$user['user_id']}) {$status}: {$message}" . PHP_EOL;
+        }
+      }
+      curl_close($ch);
+      return true;
     }
     return false;
   }

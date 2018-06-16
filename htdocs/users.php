@@ -105,7 +105,7 @@ foreach ($garage->getUsers() as $user) {
                   <select class='form-control' id='pushover_sound' name='pushover_sound'>
                     <option value=''>User Default</option>
 <?php
-$sounds = array(
+$sounds = [
   'pushover' => 'Pushover (default)',
   'bike' => 'Bike', 'bugle' => 'Bugle',
   'cashregister' => 'Cash Register', 'classical' => 'Classical', 'cosmic' => 'Cosmic',
@@ -122,7 +122,7 @@ $sounds = array(
   'echo' => 'Pushover Echo (long)',
   'updown' => 'Up Down (long)',
   'none' => 'None (silent)'
-);
+];
 foreach ($sounds as $value => $text) {
   echo "                    <option value='{$value}'>{$text}</option>" . PHP_EOL;
 }

@@ -33,7 +33,7 @@ if ($garage->isAdmin()) {
         <div class='modal-content'>
           <div class='modal-body'>
 <?php
-foreach (array('opener', 'light') as $device) {
+foreach (['opener', 'light'] as $device) {
   if ($garage->isConfigured($device)) {
     $button = strtoupper($device);
     echo "            <div class='row justify-content-center'>" . PHP_EOL;
