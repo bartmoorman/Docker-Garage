@@ -12,7 +12,7 @@ class Garage {
     session_start([
       'save_path' => '/config/sessions',
       'name' => '_sess_garage',
-      'gc_maxlifetime' => 60 * 60, * 24
+      'gc_maxlifetime' => 60 * 60 * 24,
       'cookie_lifetime' => 60 * 60 * 24,
       'cookie_secure' => true,
       'cookie_httponly' => true,
