@@ -4,6 +4,8 @@ ini_set('date.timezone', 'UTC');
 class Garage {
   private $dbFile = '/config/garage.db';
   private $dbConn;
+  private $memcacheConn;
+  private $pushoverAppToken;
   private $devices = ['opener' => null, 'sensor' => null, 'button' => null, 'light' => null];
   private $gpioValue = '/sys/class/gpio/gpio%u/value';
   public $pageLimit = 20;
@@ -26,6 +28,8 @@ class Garage {
       $this->initDb();
     }
 
+    $this->connectMemcache();
+
     if ($this->isConfigured()) {
       if ($this->isValidSession()) {
         if (($requireAdmin && !$this->isAdmin()) || $requireIndex) {
@@ -40,6 +44,8 @@ class Garage {
       header('Location: setup.php');
       exit;
     }
+
+    $this->pushoverAppToken = getenv('PUSHOVER_APP_TOKEN');
 
     foreach (array_keys($this->devices) as $device) {
       $env = getenv(strtoupper($device) . '_PIN');
@@ -83,6 +89,14 @@ CREATE TABLE IF NOT EXISTS `events` (
 );
 EOQ;
     if ($this->dbConn->exec($query)) {
+      return true;
+    }
+    return false;
+  }
+
+  private function connectMemcache() {
+    if ($this->memcacheConn = new Memcached()) {
+      $this->memcacheConn->addServer('localhost', null);
       return true;
     }
     return false;
@@ -345,6 +359,20 @@ EOQ;
       usleep(500000);
       if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 1)) {
         return true;
+      }
+    }
+    return false;
+  }
+
+  public function getSounds() {
+    if ($result = $this->memcacheConn->get('pushoverSounds')) {
+      return json_decode($result)->sounds;
+    } else {
+      $ch = curl_init("https://api.pushover.net/1/sounds.json?token={$this->pushoverAppToken}");
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      if (($result = curl_exec($ch)) !== false && curl_getinfo($ch, CURLINFO_RESPONSE_CODE) == 200) {
+        $this->memcacheConn->set('pushoverSounds', $result, 60 * 60 * 24);
+        return json_decode($result)->sounds;
       }
     }
     return false;

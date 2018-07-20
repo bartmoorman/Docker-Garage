@@ -11,9 +11,12 @@ RUN apk add --no-cache \
     apache2-ctl \
     apache2-ssl \
     curl \
+    memcached \
     php7 \
     php7-apache2 \
+    php7-curl \
     php7-json \
+    php7-memcached \
     php7-session \
     php7-sqlite3
 

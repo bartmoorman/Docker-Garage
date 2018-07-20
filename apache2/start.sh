@@ -36,6 +36,11 @@ elif [ ! -d /var/run/apache2 ]; then
     mkdir -p /var/run/apache2
 fi
 
+$(which memcached) \
+    -l 127.0.0.1 \
+    -d \
+    -u memcached
+
 exec $(which apachectl) \
     -D FOREGROUND \
     -D ${HTTPD_SECURITY:-HTTPD_SSL} \
