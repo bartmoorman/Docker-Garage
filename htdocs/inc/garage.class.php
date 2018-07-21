@@ -5,6 +5,9 @@ class Garage {
   private $dbFile = '/config/garage.db';
   private $dbConn;
   private $memcacheConn;
+  private $queueKey = 8440;
+  public $queueSize = 512;
+  public $queueConn;
   private $pushoverAppToken;
   private $devices = ['opener' => null, 'sensor' => null, 'button' => null, 'light' => null];
   private $gpioValue = '/sys/class/gpio/gpio%u/value';
@@ -29,6 +32,8 @@ class Garage {
     }
 
     $this->connectMemcache();
+
+    $this->connectQueue();
 
     if ($this->isConfigured()) {
       if ($this->isValidSession()) {
@@ -97,6 +102,13 @@ EOQ;
   private function connectMemcache() {
     if ($this->memcacheConn = new Memcached()) {
       $this->memcacheConn->addServer('localhost', null);
+      return true;
+    }
+    return false;
+  }
+
+  private function connectQueue() {
+    if ($this->queueConn = msg_get_queue($this->queueKey)) {
       return true;
     }
     return false;
@@ -358,6 +370,11 @@ EOQ;
     if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 0)) {
       usleep(500000);
       if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 1)) {
+        if ($user = $this->getUserDetails($_SESSION['user_id'])) {
+          $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
+          $message = sprintf('%s was activated by %s (user_id: %u)', strtoupper($device), $user_name, $user['user_id']);
+          msg_send($this->queueConn, 1, $message, true, false);
+        }
         return true;
       }
     }

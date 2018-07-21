@@ -13,7 +13,7 @@ $garage = new Garage(false, true, false, true);
     <link rel='stylesheet' href='//use.fontawesome.com/releases/v5.1.0/css/all.css' integrity='sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt' crossorigin='anonymous'>
   </head>
   <body>
-    <div class='modal d-block'>
+    <div class='modal fade'>
       <div class='modal-dialog modal-dialog-centered'>
         <div class='modal-content'>
           <form>
@@ -23,13 +23,13 @@ $garage = new Garage(false, true, false, true);
             <div class='modal-body'>
               <div class='form-row'>
                 <div class='form-group col'>
-                  <label>PIN <sup class='text-danger'>*</sup></label>
+                  <label>PIN <sup class='text-danger' data-toggle='tooltip' title='Required'>*</sup></label>
                   <input class='form-control' id='pin' type='tel' name='pin' minlength='6' maxlength='6' pattern='[0-9]{6}' autofocus required>
                 </div>
               </div>
               <div class='form-row'>
                 <div class='form-group col'>
-                  <label>First Name <sup class='text-danger'>*</sup></label>
+                  <label>First Name <sup class='text-danger' data-toggle='tooltip' title='Required'>*</sup></label>
                   <input class='form-control' id='first_name' type='text' name='first_name' required>
                 </div>
                 <div class='form-group col'>
@@ -39,7 +39,7 @@ $garage = new Garage(false, true, false, true);
               </div>
               <div class='form-row'>
                 <div class='form-group col'>
-                  <label>Role <sup class='text-danger'>*</sup></label>
+                  <label>Role <sup class='text-danger' data-toggle='tooltip' title='Required'>*</sup> <sup class='text-info' data-toggle='tooltip' title='Informational'>*</sup></label>
                   <input class='form-control' id='role' type='text' name='role' value='admin' readonly required>
                 </div>
               </div>
@@ -56,6 +56,10 @@ $garage = new Garage(false, true, false, true);
     <script src='//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js' integrity='sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T' crossorigin='anonymous'></script>
     <script>
       $(document).ready(function() {
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $('div.modal').modal({backdrop: false, keyboard: false});
+
         $('form').submit(function(e) {
           e.preventDefault();
           $.post('src/action.php', {"func": "createUser", "pin": $('#pin').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "role": $('#role').val()})

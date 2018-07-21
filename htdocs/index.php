@@ -12,23 +12,16 @@ $garage = new Garage(true, true, false, false);
     <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootswatch/4.1.1/darkly/bootstrap.min.css' integrity='sha384-ae362vOLHy2F1EfJtpMbNW0i9pNM1TP2l5O4VGYYiLJKsaejqVWibbP6BSf0UU5i' crossorigin='anonymous'>
     <link rel='stylesheet' href='//use.fontawesome.com/releases/v5.1.0/css/all.css' integrity='sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt' crossorigin='anonymous'>
     <style>
-      div.modal {
-        z-index: auto;
+      nav.navbar {
+        z-index: 1051;
       }
     </style>
   </head>
   <body>
 <?php
-if ($garage->isAdmin()) {
-  $homeLoc = dirname($_SERVER['PHP_SELF']);
-  echo "    <nav class='navbar fixed-top'>" . PHP_EOL;
-  echo "      <button class='btn btn-sm btn-outline-success id-nav' data-href='{$homeLoc}'>Home</button>" . PHP_EOL;
-  echo "      <button class='btn btn-sm btn-outline-info ml-auto mr-2 id-nav' data-href='users.php'>Users</button>" . PHP_EOL;
-  echo "      <button class='btn btn-sm btn-outline-info id-nav' data-href='events.php'>Events</button>" . PHP_EOL;
-  echo "    </nav>" . PHP_EOL;
-}
+include_once('header.php');
 ?>
-    <div class='modal d-block'>
+    <div class='modal fade'>
       <div class='modal-dialog modal-sm modal-dialog-centered'>
         <div class='modal-content'>
           <div class='modal-body'>
@@ -51,6 +44,8 @@ foreach (['opener', 'light'] as $device) {
     <script src='//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js' integrity='sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T' crossorigin='anonymous'></script>
     <script>
       $(document).ready(function() {
+        $('div.modal').modal({backdrop: false, keyboard: false});
+
         $('button.id-activate').click(function() {
           $('button.id-activate').prop('disabled', true);
           $.get('src/action.php', {"func": "doActivate", "device": $(this).data('device')})

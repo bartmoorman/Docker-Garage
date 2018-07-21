@@ -92,7 +92,12 @@ switch ($_REQUEST['func']) {
   case 'doActivate':
     if ($garage->isValidSession()) {
       if (!empty($_REQUEST['device'])) {
-        $output['success'] = $garage->doActivate($_REQUEST['device']);
+        if ($garage->isConfigured($_REQUEST['device'])) {
+          $output['success'] = $garage->doActivate($_REQUEST['device']);
+        } else {
+          $output['success'] = false;
+          $output['message'] = 'Device not configured';
+        }
         $log['device'] = $_REQUEST['device'];
       } else {
         $output['success'] = false;

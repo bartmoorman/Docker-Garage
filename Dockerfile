@@ -18,10 +18,12 @@ RUN apk add --no-cache \
     php7-json \
     php7-memcached \
     php7-session \
-    php7-sqlite3
+    php7-sqlite3 \
+    php7-sysvmsg
 
 COPY apache2/ /etc/apache2/
 COPY htdocs/ /var/www/localhost/htdocs/
+COPY bin/ /usr/local/bin/
 
 VOLUME /config
 

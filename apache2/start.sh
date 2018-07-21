@@ -41,7 +41,11 @@ $(which memcached) \
     -d \
     -u memcached
 
-exec $(which apachectl) \
-    -D FOREGROUND \
+$(which apachectl) \
     -D ${HTTPD_SECURITY:-HTTPD_SSL} \
     -D ${HTTPD_REDIRECT:-HTTPD_REDIRECT_SSL}
+
+exec su \
+    -c $(which notifications.php) \
+    -s /bin/sh \
+    apache

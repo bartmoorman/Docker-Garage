@@ -27,7 +27,7 @@ $garage = new Garage(true, false, false, true);
     </style>
   </head>
   <body>
-    <div class='modal d-block'>
+    <div class='modal fade'>
       <div class='modal-dialog modal-sm modal-dialog-centered'>
         <div class='modal-content'>
           <div class='modal-body'>
@@ -108,6 +108,8 @@ for ($i=0; $i<6; $i++) {
           pin = '';
           $('input.id-digit').removeClass('border-success').val('');
         }
+
+        $('div.modal').modal({backdrop: false, keyboard: false});
 
         $(document).keyup(function(event) {
           switch (true) {
