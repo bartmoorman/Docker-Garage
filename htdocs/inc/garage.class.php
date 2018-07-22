@@ -78,6 +78,9 @@ CREATE TABLE IF NOT EXISTS `users` (
   `last_name` TEXT,
   `pushover_user` TEXT,
   `pushover_token` TEXT,
+  `pushover_priority` INTEGER DEFAULT 0,
+  `pushover_retry` INTEGER DEFAULT 60,
+  `pushover_expire` INTEGER DEFAULT 3600,
   `pushover_sound` TEXT,
   `role` TEXT NOT NULL,
   `begin` INTEGER,
@@ -189,7 +192,7 @@ EOQ;
     return false;
   }
 
-  public function createUser($pin, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $pushover_sound = null, $role, $begin = null, $end = null) {
+  public function createUser($pin, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $pushover_priority = null, $pushover_retry = null, $pushover_expire = null, $pushover_sound = null, $role, $begin = null, $end = null) {
     $pin = $this->dbConn->escapeString($pin);
     $query = <<<EOQ
 SELECT COUNT(*)
@@ -201,14 +204,17 @@ EOQ;
       $last_name = $this->dbConn->escapeString($last_name);
       $pushover_user = $this->dbConn->escapeString($pushover_user);
       $pushover_token = $this->dbConn->escapeString($pushover_token);
+      $pushover_priority = $this->dbConn->escapeString($pushover_priority);
+      $pushover_retry = $this->dbConn->escapeString($pushover_retry);
+      $pushover_expire = $this->dbConn->escapeString($pushover_expire);
       $pushover_sound = $this->dbConn->escapeString($pushover_sound);
       $role = $this->dbConn->escapeString($role);
       $begin = $this->dbConn->escapeString($begin);
       $end = $this->dbConn->escapeString($end);
       $query = <<<EOQ
 INSERT
-INTO `users` (`pin`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`, `role`, `begin`, `end`)
-VALUES ('{$pin}', '{$first_name}', '{$last_name}', '{$pushover_user}', '{$pushover_token}', '{$pushover_sound}', '{$role}', STRFTIME('%s', '{$begin}'), STRFTIME('%s', '{$end}'));
+INTO `users` (`pin`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_priority`, `pushover_retry`, `pushover_expire`, `pushover_sound`, `role`, `begin`, `end`)
+VALUES ('{$pin}', '{$first_name}', '{$last_name}', '{$pushover_user}', '{$pushover_token}', '{$pushover_priority}', '{$pushover_retry}', '{$pushover_expire}', '{$pushover_sound}', '{$role}', STRFTIME('%s', '{$begin}'), STRFTIME('%s', '{$end}'));
 EOQ;
       if ($this->dbConn->exec($query)) {
         return true;
@@ -217,7 +223,7 @@ EOQ;
     return false;
   }
 
-  public function updateUser($user_id, $pin, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $pushover_sound = null, $role, $begin = null, $end = null) {
+  public function updateUser($user_id, $pin, $first_name, $last_name = null, $pushover_user = null, $pushover_token = null, $pushover_priority = null, $pushover_retry = null, $pushover_expire = null, $pushover_sound = null, $role, $begin = null, $end = null) {
     $user_id = $this->dbConn->escapeString($user_id);
     $pin = $this->dbConn->escapeString($pin);
     $query = <<<EOQ
@@ -231,6 +237,9 @@ EOQ;
       $last_name = $this->dbConn->escapeString($last_name);
       $pushover_user = $this->dbConn->escapeString($pushover_user);
       $pushover_token = $this->dbConn->escapeString($pushover_token);
+      $pushover_priority = $this->dbConn->escapeString($pushover_priority);
+      $pushover_retry = $this->dbConn->escapeString($pushover_retry);
+      $pushover_expire = $this->dbConn->escapeString($pushover_expire);
       $pushover_sound = $this->dbConn->escapeString($pushover_sound);
       $role = $this->dbConn->escapeString($role);
       $begin = $this->dbConn->escapeString($begin);
@@ -243,6 +252,9 @@ SET
   `last_name` = '{$last_name}',
   `pushover_user` = '{$pushover_user}',
   `pushover_token` = '{$pushover_token}',
+  `pushover_priority` = '{$pushover_priority}',
+  `pushover_retry` = '{$pushover_retry}',
+  `pushover_expire` = '{$pushover_expire}',
   `pushover_sound` = '{$pushover_sound}',
   `role` = '{$role}',
   `begin` = STRFTIME('%s', '{$begin}'),
@@ -292,7 +304,7 @@ EOQ;
 
   public function getUsers() {
     $query = <<<EOQ
-SELECT `user_id`, SUBSTR('000000'||`pin`,-6) AS `pin`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`, `role`, `begin`, `end`, `disabled`
+SELECT `user_id`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_priority`, `pushover_retry`, `pushover_expire`, `pushover_sound`, `role`, `begin`, `end`, `disabled`
 FROM `users`
 ORDER BY `last_name`, `first_name`
 EOQ;
@@ -309,7 +321,7 @@ EOQ;
   public function getUserDetails($user_id) {
     $user_id = $this->dbConn->escapeString($user_id);
     $query = <<<EOQ
-SELECT `user_id`, SUBSTR('000000'||`pin`,-6) AS `pin`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`, `role`, STRFTIME('%Y-%m-%dT%H:%M', `begin`, 'unixepoch') AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', `end`, 'unixepoch') AS `end`, `disabled`
+SELECT `user_id`, SUBSTR('000000'||`pin`,-6) AS `pin`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_priority`, `pushover_retry`, `pushover_expire`, `pushover_sound`, `role`, STRFTIME('%Y-%m-%dT%H:%M', `begin`, 'unixepoch') AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', `end`, 'unixepoch') AS `end`, `disabled`
 FROM `users`
 WHERE `user_id` = '{$user_id}';
 EOQ;
@@ -397,7 +409,7 @@ EOQ;
 
   public function sendNotifications($messages = []) {
     $query = <<<EOQ
-SELECT `user_id`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_sound`
+SELECT `user_id`, `first_name`, `last_name`, `pushover_user`, `pushover_token`, `pushover_priority`, `pushover_retry`, `pushover_expire`, `pushover_sound`
 FROM `users`
 WHERE LENGTH(`pushover_user`) AND LENGTH(`pushover_token`)
 AND NOT `disabled`;
@@ -407,7 +419,7 @@ EOQ;
       while ($user = $users->fetchArray(SQLITE3_ASSOC)) {
         $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
         foreach ($messages as $message) {
-          curl_setopt($ch, CURLOPT_POSTFIELDS, ['user' => $user['pushover_user'], 'token' => $user['pushover_token'], 'message' => $message, 'sound' => $user['pushover_sound']]);
+          curl_setopt($ch, CURLOPT_POSTFIELDS, ['user' => $user['pushover_user'], 'token' => $user['pushover_token'], 'message' => $message, 'priority' => $user['pushover_priority'], 'retry' => $user['pushover_retry'], 'expire' => $user['pushover_expire'], 'sound' => $user['pushover_sound']]);
           curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
           if (curl_exec($ch) !== false && curl_getinfo($ch, CURLINFO_RESPONSE_CODE) == 200) {
             $status = 'successful';

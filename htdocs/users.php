@@ -23,10 +23,10 @@ include_once('header.php');
             <th><button type='button' class='btn btn-sm btn-outline-success id-add'>Add</button></th>
             <th>User ID</th>
             <th>User Name</th>
-            <th>Notifications</th>
             <th>Role</th>
             <th>Begin</th>
             <th>End</th>
+            <th>Notifications</th>
           </tr>
         </thead>
         <tbody>
@@ -40,14 +40,14 @@ foreach ($garage->getUsers() as $user) {
   echo "            <td><button type='button' class='btn btn-sm btn-outline-info id-details' data-user_id='{$user['user_id']}'>Details</button></td>" . PHP_EOL;
   echo "            <td>{$user['user_id']}</td>" . PHP_EOL;
   echo "            <td>{$user_name}</td>" . PHP_EOL;
+  echo "            <td>{$user['role']}</td>" . PHP_EOL;
+  echo "            <td>{$begin}</td>" . PHP_EOL;
+  echo "            <td>{$end}</td>" . PHP_EOL;
   if (!empty($user['pushover_user']) && !empty($user['pushover_token'])) {
     echo "            <td><input type='checkbox' checked disabled></td>" . PHP_EOL;
   } else {
     echo "            <td><input type='checkbox' disabled></td>" . PHP_EOL;
   }
-  echo "            <td>{$user['role']}</td>" . PHP_EOL;
-  echo "            <td>{$begin}</td>" . PHP_EOL;
-  echo "            <td>{$end}</td>" . PHP_EOL;
   echo "          </tr>" . PHP_EOL;
 }
 ?>
@@ -89,6 +89,16 @@ foreach ($garage->getUsers() as $user) {
               </div>
               <div class='form-row'>
                 <div class='form-group col'>
+                  <label>Begin</label>
+                  <input class='form-control' id='begin' type='datetime-local' name='begin'>
+                </div>
+                <div class='form-group col'>
+                  <label>End</label>
+                  <input class='form-control' id='end' type='datetime-local' name='end'>
+                </div>
+              </div>
+              <div class='form-row'>
+                <div class='form-group col'>
                   <label>Pushover User Key</label>
                   <input class='form-control' id='pushover_user' type='text' name='pushover_user' minlegth='30' maxlength='30' pattern='[A-Za-z0-9]{30}'>
                 </div>
@@ -99,30 +109,35 @@ foreach ($garage->getUsers() as $user) {
               </div>
               <div class='form-row'>
                 <div class='form-group col'>
-                  <label>Pushover Sound</label>
-                  <div class='input-group'>
-                    <select class='form-control' id='pushover_sound' name='pushover_sound'>
-                      <option value=''>User Default</option>
+                  <label>Pushover Sound <sup><a target='_blank' href='https://pushover.net/api#sounds'>Listen</a></sup></label>
+                  <select class='form-control' id='pushover_sound' name='pushover_sound'>
+                    <option value=''>User Default</option>
 <?php
 foreach ($garage->getSounds() as $value => $text) {
-  echo "                      <option value='{$value}'>{$text}</option>" . PHP_EOL;
+  echo "                    <option value='{$value}'>{$text}</option>" . PHP_EOL;
 }
 ?>
-                    </select>
-                    <div class='input-group-append'>
-                      <a class='input-group-text' target='_blank' href='https://pushover.net/api#sounds'>Listen</a>
-                    </div>
-                  </div>
+                  </select>
+                </div>
+                <div class='form-group col'>
+                  <label>Pushover Priority</label>
+                  <select class='form-control id-pushover_priority' id='pushover_priority' name='pushover_priority'>
+<?php
+for ($priority = -2; $priority <= 2; $priority++) {
+  echo "                    <option value='{$priority}'>{$priority}</option>" . PHP_EOL;
+}
+?>
+                  </select>
                 </div>
               </div>
-              <div class='form-row'>
+              <div class='form-row id-required'>
                 <div class='form-group col'>
-                  <label>Begin</label>
-                  <input class='form-control' id='begin' type='datetime-local' name='begin'>
+                  <label>Pushover Retry <sup class='text-danger' data-toggle='tooltip' title='Required'>*</sup></label>
+                  <input class='form-control id-pushover_retry' id='pushover_retry' type='number' name='pushover_retry' min='30' required>
                 </div>
                 <div class='form-group col'>
-                  <label>End</label>
-                  <input class='form-control' id='end' type='datetime-local' name='end'>
+                  <label>Pushover Expire <sup class='text-danger' data-toggle='tooltip' title='Required'>*</sup></label>
+                  <input class='form-control id-pushover_expire' id='pushover_expire' type='number' name='pushover_expire' max='10800' required>
                 </div>
               </div>
             </div>
@@ -146,6 +161,10 @@ foreach ($garage->getSounds() as $value => $text) {
         $('button.id-add').click(function() {
           $('h5.modal-title').text('Add User');
           $('form').removeData('user_id').data('func', 'createUser').trigger('reset');
+          $('select.id-pushover_priority').val(0);
+          $('div.id-required').addClass('d-none');
+          $('input.id-pushover_retry').val(60);
+          $('input.id-pushover_expire').val(3600);
           $('button.id-modify').addClass('d-none').removeData('user_id');
           $('button.id-submit').removeClass('btn-info').addClass('btn-success').text('Add');
           $('div.id-modal').modal('toggle');
@@ -166,6 +185,10 @@ foreach ($garage->getSounds() as $value => $text) {
                 $('#last_name').val(user.last_name);
                 $('#pushover_user').val(user.pushover_user);
                 $('#pushover_token').val(user.pushover_token);
+                $('#pushover_priority').val(user.pushover_priority);
+                $('div.id-required').toggleClass('d-none', user.pushover_priority != 2 ? true : false)
+                $('#pushover_retry').val(user.pushover_retry);
+                $('#pushover_expire').val(user.pushover_expire);
                 $('#pushover_sound').val(user.pushover_sound);
                 $('#role').val(user.role);
                 $('#begin').val(user.begin);
@@ -194,9 +217,13 @@ foreach ($garage->getSounds() as $value => $text) {
           }
         });
 
+        $('select.id-pushover_priority').change(function() {
+          $('div.id-required').toggleClass('d-none', $(this).val() != 2 ? true : false);
+        });
+
         $('form').submit(function(e) {
           e.preventDefault();
-          $.post('src/action.php', {"func": $(this).data('func'), "user_id": $(this).data('user_id'), "pin": $('#pin').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "pushover_user": $('#pushover_user').val(), "pushover_token": $('#pushover_token').val(), "pushover_sound": $('#pushover_sound').val(), "role": $('#role').val(), "begin": $('#begin').val(), "end": $('#end').val()})
+          $.post('src/action.php', {"func": $(this).data('func'), "user_id": $(this).data('user_id'), "pin": $('#pin').val(), "first_name": $('#first_name').val(), "last_name": $('#last_name').val(), "pushover_user": $('#pushover_user').val(), "pushover_token": $('#pushover_token').val(), "pushover_priority": $('#pushover_priority').val(), "pushover_retry": $('#pushover_retry').val(), "pushover_expire": $('#pushover_expire').val(), "pushover_sound": $('#pushover_sound').val(), "role": $('#role').val(), "begin": $('#begin').val(), "end": $('#end').val()})
             .done(function(data) {
               if (data.success) {
                 location.reload();
