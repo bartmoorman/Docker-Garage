@@ -393,6 +393,13 @@ EOQ;
     return false;
   }
 
+  public function getPosition($device) {
+    if ($position = file_get_contents(sprintf($this->gpioValue, $this->devices[$device]))) {
+      return $position;
+    }
+    return false;
+  }
+
   public function getSounds() {
     if ($result = $this->memcacheConn->get('pushoverSounds')) {
       return json_decode($result)->sounds;

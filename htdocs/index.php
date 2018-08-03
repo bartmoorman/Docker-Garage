@@ -24,6 +24,27 @@ include_once('header.php');
     <div class='modal fade'>
       <div class='modal-dialog modal-sm modal-dialog-centered'>
         <div class='modal-content'>
+<?php
+if ($garage->isConfigured('sensor')) {
+  echo "          <div class='modal-header'>" . PHP_EOL;
+  if ($position = $garage->getPosition('sensor')) {
+    switch ($position) {
+      case 0:
+        $class = 'text-warning';
+        $status = 'OPEN';
+        break;
+      case 1:
+        $class = 'text-success';
+        $status = 'CLOSED';
+        break;
+    }
+    echo "            <h5 class='modal-title {$class} mx-auto'>Garage is <strong>{$status}</strong></h5>" . PHP_EOL;
+  } else {
+    echo "            <h5 class='modal-title text-danger mx-auto'>Unable to read position!</h5>" . PHP_EOL;
+  }
+  echo "          </div>" . PHP_EOL;
+}
+?>
           <div class='modal-body'>
 <?php
 foreach (['opener', 'light'] as $device) {
