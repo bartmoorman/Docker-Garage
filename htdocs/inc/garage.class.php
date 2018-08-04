@@ -1,15 +1,15 @@
 <?php
-ini_set('date.timezone', 'UTC');
+date_default_timezone_set(getenv('TZ'));
 
 class Garage {
   private $dbFile = '/config/garage.db';
   private $dbConn;
-  private $memcacheConn;
+  public $memcacheConn;
   private $queueKey = 8440;
   public $queueSize = 512;
   public $queueConn;
   private $pushoverAppToken;
-  private $devices = ['opener' => null, 'sensor' => null, 'button' => null, 'light' => null];
+  private $devices = ['opener' => null, 'sensor' => null];
   private $gpioValue = '/sys/class/gpio/gpio%u/value';
   public $pageLimit = 20;
 
@@ -362,7 +362,7 @@ EOQ;
   public function getEvents($page = 1) {
     $start = ($page - 1) * $this->pageLimit;
     $query = <<<EOQ
-SELECT `event_id`, STRFTIME('%s', `date`, 'unixepoch', 'localtime') AS `date`, `user_id`, `first_name`, `last_name`, `action`, `message`, `remote_addr`, `disabled`
+SELECT `event_id`, STRFTIME('%s', `date`, 'unixepoch') AS `date`, `user_id`, `first_name`, `last_name`, `action`, `message`, `remote_addr`, `disabled`
 FROM `events`
 LEFT JOIN `users` USING (`user_id`)
 ORDER BY `date` DESC

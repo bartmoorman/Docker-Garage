@@ -38,25 +38,33 @@ if ($garage->isConfigured('sensor')) {
         $status = 'CLOSED';
         break;
     }
-    echo "            <h5 class='modal-title {$class} mx-auto'>Garage is <strong>{$status}</strong></h5>" . PHP_EOL;
+    echo "            <h4 class='modal-title text-muted mx-auto'>Garage is <em class='{$class}'>{$status}</em></h4>" . PHP_EOL;
   } else {
-    echo "            <h5 class='modal-title text-danger mx-auto'>Unable to read position!</h5>" . PHP_EOL;
+    echo "            <h4 class='modal-title text-danger mx-auto'>Unable to read position!</h4>" . PHP_EOL;
+  }
+  echo "          </div>" . PHP_EOL;
+}
+
+if ($garage->isConfigured('opener')) {
+  echo "          <div class='modal-body text-center'>" . PHP_EOL;
+  if ($garage->isConfigured('sensor') && $position = $garage->getPosition('sensor')) {
+    switch ($position) {
+      case 0:
+        $class = 'success';
+        $action = 'CLOSE';
+        break;
+      case 1:
+        $class = 'warning';
+        $action = 'OPEN';
+        break;
+    }
+    echo "            <button class='btn btn-outline-{$class} btn-lg id-activate' data-device='opener'><h2 class='my-auto'>{$action}</h2></button>" . PHP_EOL;
+  } else {
+    echo "            <button class='btn btn-outline-info btn-lg id-activate' data-device='opener'><h2 class='my-auto'>OPENER</h2></button>" . PHP_EOL;
   }
   echo "          </div>" . PHP_EOL;
 }
 ?>
-          <div class='modal-body'>
-<?php
-foreach (['opener', 'light'] as $device) {
-  if ($garage->isConfigured($device)) {
-    $button = strtoupper($device);
-    echo "            <div class='row justify-content-center'>" . PHP_EOL;
-    echo "              <div class='col-auto my-2'><button class='btn btn-outline-info btn-lg id-activate' data-device='{$device}'><h1 class='my-1'>{$button}</h1></button></div>" . PHP_EOL;
-    echo "            </div>" . PHP_EOL;
-  }
-}
-?>
-          </div>
         </div>
       </div>
     </div>

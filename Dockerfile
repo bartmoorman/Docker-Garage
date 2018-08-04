@@ -3,8 +3,8 @@ FROM bmoorman/alpine:armhf
 ENV HTTPD_SERVERNAME="localhost" \
     OPENER_PIN="23:high" \
     SENSOR_PIN="24:in" \
-    BUTTON_PIN="disabled" \
-    LIGHT_PIN="disabled"
+    LAT="40.760779" \
+    LONG="-111.891047"
 
 RUN apk add --no-cache \
     apache2 \

@@ -1,5 +1,5 @@
 #!/bin/sh
-for PIN in ${OPENER_PIN} ${SENSOR_PIN} ${BUTTON_PIN} ${LIGHT_PIN}; do
+for PIN in ${OPENER_PIN} ${SENSOR_PIN}; do
     if [ "${PIN%:*}" != "${PIN#*:}" ]; then
       if [ ! -L /sys/class/gpio/gpio${PIN%:*} ]; then
         echo ${PIN%:*} > /sys/class/gpio/export
@@ -41,11 +41,21 @@ $(which memcached) \
     -d \
     -u memcached
 
-$(which apachectl) \
-    -D ${HTTPD_SECURITY:-HTTPD_SSL} \
-    -D ${HTTPD_REDIRECT:-HTTPD_REDIRECT_SSL}
+sleep 1
 
-exec su \
+$(which su) \
+    -c $(which schedule.php) \
+    -s /bin/sh \
+    apache &
+
+sleep 1
+
+$(which su) \
     -c $(which notifications.php) \
     -s /bin/sh \
-    apache
+    apache &
+
+exec $(which apachectl) \
+    -D FOREGROUND \
+    -D ${HTTPD_SECURITY:-HTTPD_SSL} \
+    -D ${HTTPD_REDIRECT:-HTTPD_REDIRECT_SSL}
