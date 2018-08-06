@@ -114,6 +114,29 @@ switch ($_REQUEST['func']) {
       $output['message'] = 'Unauthorized';
     }
     break;
+  case 'getPosition':
+    if ($garage->isValidSession()) {
+      if (!empty($_REQUEST['device'])) {
+        if ($garage->isConfigured($_REQUEST['device'])) {
+          if ($output['data'] = $garage->getPosition($_REQUEST['device'])) {
+            $output['success'] = true;
+            $putEvent = false;
+          } else {
+            $output['success'] = false;
+          }
+        } else {
+          $output['success'] = false;
+          $output['message'] = 'Device not configured';
+        }
+      } else {
+        $output['success'] = false;
+        $output['message'] = 'No device supplied';
+      }
+    } else {
+      $output['success'] = false;
+      $output['message'] = 'Unauthorized';
+    }
+    break;
 }
 
 if ($putEvent) {

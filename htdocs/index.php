@@ -27,41 +27,13 @@ include_once('header.php');
 <?php
 if ($garage->isConfigured('sensor')) {
   echo "          <div class='modal-header'>" . PHP_EOL;
-  if ($position = $garage->getPosition('sensor')) {
-    switch ($position) {
-      case 0:
-        $class = 'text-warning';
-        $status = 'OPEN';
-        break;
-      case 1:
-        $class = 'text-success';
-        $status = 'CLOSED';
-        break;
-    }
-    echo "            <h4 class='modal-title text-muted mx-auto'>Garage is <em class='{$class}'>{$status}</em></h4>" . PHP_EOL;
-  } else {
-    echo "            <h4 class='modal-title text-danger mx-auto'>Unable to read position!</h4>" . PHP_EOL;
-  }
+  echo "            <h4 class='modal-title text-muted mx-auto'>Garage is <strong class='text-secondary id-position'>LOADING</strong></h4>" . PHP_EOL;
   echo "          </div>" . PHP_EOL;
 }
 
 if ($garage->isConfigured('opener')) {
   echo "          <div class='modal-body text-center'>" . PHP_EOL;
-  if ($garage->isConfigured('sensor') && $position = $garage->getPosition('sensor')) {
-    switch ($position) {
-      case 0:
-        $class = 'success';
-        $action = 'CLOSE';
-        break;
-      case 1:
-        $class = 'warning';
-        $action = 'OPEN';
-        break;
-    }
-    echo "            <button class='btn btn-outline-{$class} btn-lg id-activate' data-device='opener'><h2 class='my-auto'>{$action}</h2></button>" . PHP_EOL;
-  } else {
-    echo "            <button class='btn btn-outline-info btn-lg id-activate' data-device='opener'><h2 class='my-auto'>OPENER</h2></button>" . PHP_EOL;
-  }
+  echo "            <button class='btn btn-lg btn-outline-info id-activate' data-device='opener'><h2 class='my-auto'>ACTIVATE</h2></button>" . PHP_EOL;
   echo "          </div>" . PHP_EOL;
 }
 ?>
@@ -73,6 +45,50 @@ if ($garage->isConfigured('opener')) {
     <script src='//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js' integrity='sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T' crossorigin='anonymous'></script>
     <script>
       $(document).ready(function() {
+        var position = {"class": "text-secondary"};
+        var activate = {"class": "btn-outline-info"};
+
+        function getPosition() {
+          $.get('src/action.php', {"func": "getPosition", "device": "sensor"})
+            .done(function(data) {
+              if (data.success) {
+                switch (data.data.trim()) {
+                  case '0':
+                    if (position.state != 'open') {
+                      $('strong.id-position').text('OPEN').toggleClass(`${position.class} text-warning`);
+                      $('button.id-activate').toggleClass(`${activate.class} btn-outline-success`).children('h2').text('CLOSE');
+                      position = {"state": "open", "class": "text-warning"};
+                      activate = {"class": "btn-outline-success"};
+                    }
+                    break;
+                  case '1':
+                    if (position.state != 'closed') {
+                      $('strong.id-position').text('CLOSED').toggleClass(`${position.class} text-success`);
+                      $('button.id-activate').toggleClass(`${activate.class} btn-outline-warning`).children('h2').text('OPEN');
+                      position = {"state": "closed", "class": "text-success"};
+                      activate = {"class": "btn-outline-warning"};
+                    }
+                    break;
+                  default:
+                    if (position.state != 'unknown') {
+                      $('strong.id-position').text('UNKNOWN').toggleClass(`${position.class} text-danger`);
+                      $('button.id-activate').toggleClass(`${activate.class} btn-outline-info`).children('h2').text('ACTIVATE');
+                      position = {"state": "unknown", "class": "text-danger"};
+                      activate = {"class": "btn-outline-info"};
+                    }
+                }
+              }
+            })
+            .fail(function(jqxhr, textStatus, errorThrown) {
+              console.log(`getPosition failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
+            })
+            .always(function() {
+              setTimeout(getPosition, 2.5 * 1000);
+            });
+        }
+
+        getPosition();
+
         $('div.modal').modal({backdrop: false, keyboard: false});
 
         $('button.id-activate').click(function() {
