@@ -12,6 +12,7 @@ switch ($_REQUEST['func']) {
       $output['success'] = $garage->authenticateSession($_REQUEST['pin']);
       usleep(rand(750000, 1000000));
     } else {
+      header('HTTP/1.1 400 Bad Request');
       $output['success'] = false;
       $output['message'] = 'No pin supplied';
     }
@@ -30,10 +31,12 @@ switch ($_REQUEST['func']) {
         $end = !empty($_REQUEST['end']) ? $_REQUEST['end'] : null;
         $output['success'] = $garage->createUser($_REQUEST['pin'], $_REQUEST['first_name'], $last_name, $pushover_user, $pushover_token, $pushover_priority, $pushover_retry, $pushover_expire, $pushover_sound, $_REQUEST['role'], $begin, $end);
       } else {
+        header('HTTP/1.1 400 Bad Request');
         $output['success'] = false;
         $output['message'] = 'Missing arguments';
       }
     } else {
+      header('HTTP/1.1 403 Forbidden');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }
@@ -53,10 +56,12 @@ switch ($_REQUEST['func']) {
         $output['success'] = $garage->updateUser($_REQUEST['user_id'], $_REQUEST['pin'], $_REQUEST['first_name'], $last_name, $pushover_user, $pushover_token, $pushover_priority, $pushover_retry, $pushover_expire, $pushover_sound, $_REQUEST['role'], $begin, $end);
         $log['user_id'] = $_REQUEST['user_id'];
       } else {
+        header('HTTP/1.1 400 Bad Request');
         $output['success'] = false;
         $output['message'] = 'Missing arguments';
       }
     } else {
+      header('HTTP/1.1 403 Forbidden');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }
@@ -68,10 +73,12 @@ switch ($_REQUEST['func']) {
         $log['action'] = $_REQUEST['action'];
         $log['user_id'] = $_REQUEST['user_id'];
       } else {
+        header('HTTP/1.1 400 Bad Request');
         $output['success'] = false;
         $output['message'] = 'Missing arguments';
       }
     } else {
+      header('HTTP/1.1 403 Forbidden');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }
@@ -87,10 +94,12 @@ switch ($_REQUEST['func']) {
           $log['user_id'] = $_REQUEST['user_id'];
         }
       } else {
+        header('HTTP/1.1 400 Bad Request');
         $output['success'] = false;
         $output['message'] = 'No user id supplied';
       }
     } else {
+      header('HTTP/1.1 403 Forbidden');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }
@@ -98,18 +107,15 @@ switch ($_REQUEST['func']) {
   case 'doActivate':
     if ($garage->isValidSession()) {
       if (!empty($_REQUEST['device'])) {
-        if ($garage->isConfigured($_REQUEST['device'])) {
-          $output['success'] = $garage->doActivate($_REQUEST['device']);
-        } else {
-          $output['success'] = false;
-          $output['message'] = 'Device not configured';
-        }
+        $output['success'] = $garage->doActivate($_REQUEST['device']);
         $log['device'] = $_REQUEST['device'];
       } else {
+        header('HTTP/1.1 400 Bad Request');
         $output['success'] = false;
         $output['message'] = 'No device supplied';
       }
     } else {
+      header('HTTP/1.1 403 Forbidden');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }
@@ -117,22 +123,20 @@ switch ($_REQUEST['func']) {
   case 'getPosition':
     if ($garage->isValidSession()) {
       if (!empty($_REQUEST['device'])) {
-        if ($garage->isConfigured($_REQUEST['device'])) {
-          if ($output['data'] = $garage->getPosition($_REQUEST['device'])) {
-            $output['success'] = true;
-            $putEvent = false;
-          } else {
-            $output['success'] = false;
-          }
+        if ($output['data'] = $garage->getPosition($_REQUEST['device'])) {
+          $output['success'] = true;
+          $putEvent = false;
         } else {
           $output['success'] = false;
-          $output['message'] = 'Device not configured';
+          $log['device'] = $_REQUEST['device'];
         }
       } else {
+        header('HTTP/1.1 400 Bad Request');
         $output['success'] = false;
         $output['message'] = 'No device supplied';
       }
     } else {
+      header('HTTP/1.1 403 Forbidden');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }

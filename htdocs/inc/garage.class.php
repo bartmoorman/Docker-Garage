@@ -379,23 +379,27 @@ EOQ;
   }
 
   public function doActivate($device) {
-    if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 0)) {
-      usleep(500000);
-      if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 1)) {
-        if ($user = $this->getUserDetails($_SESSION['user_id'])) {
-          $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
-          $message = sprintf('%s was activated by %s (user_id: %u)', strtoupper($device), $user_name, $user['user_id']);
-          msg_send($this->queueConn, 1, $message, true, false);
+    if ($this->isConfigured($device)) {
+      if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 0)) {
+        usleep(500000);
+        if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 1)) {
+          if ($user = $this->getUserDetails($_SESSION['user_id'])) {
+            $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
+            $message = sprintf('%s was activated by %s (user_id: %u)', strtoupper($device), $user_name, $user['user_id']);
+            msg_send($this->queueConn, 1, $message, true, false);
+          }
+          return true;
         }
-        return true;
       }
     }
     return false;
   }
 
   public function getPosition($device) {
-    if ($position = file_get_contents(sprintf($this->gpioValue, $this->devices[$device]))) {
-      return $position;
+    if ($this->isConfigured($device)) {
+      if ($position = file_get_contents(sprintf($this->gpioValue, $this->devices[$device]))) {
+        return $position;
+      }
     }
     return false;
   }

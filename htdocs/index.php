@@ -80,7 +80,11 @@ if ($garage->isConfigured('opener')) {
               }
             })
             .fail(function(jqxhr, textStatus, errorThrown) {
-              console.log(`getPosition failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
+              if (jqxhr.status == 403) {
+                location.reload();
+              } else {
+                console.log(`getPosition failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
+              }
             })
             .always(function() {
               setTimeout(getPosition, 2.5 * 1000);
@@ -102,7 +106,11 @@ if ($garage->isConfigured('opener')) {
               }
             })
             .fail(function(jqxhr, textStatus, errorThrown) {
-              console.log(`doActivate failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
+              if (jqxhr.status == 403) {
+                location.reload();
+              } else {
+                console.log(`doActivate failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
+              }
             })
             .always(function() {
               $('button.id-activate').prop('disabled', false);
