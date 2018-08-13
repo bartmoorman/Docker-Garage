@@ -397,7 +397,7 @@ EOQ;
 
   public function getPosition($device) {
     if ($this->isConfigured($device)) {
-      if ($position = file_get_contents(sprintf($this->gpioValue, $this->devices[$device]))) {
+      if (is_numeric($position = trim(file_get_contents(sprintf($this->gpioValue, $this->devices[$device]))))) {
         return $position;
       }
     }

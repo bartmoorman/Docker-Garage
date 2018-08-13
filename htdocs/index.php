@@ -52,7 +52,7 @@ if ($garage->isConfigured('opener')) {
           $.get('src/action.php', {"func": "getPosition", "device": "sensor"})
             .done(function(data) {
               if (data.success) {
-                switch (data.data.trim()) {
+                switch (data.data) {
                   case '0':
                     if (position.state != 'open') {
                       $('strong.id-position').text('OPEN').toggleClass(`${position.class} text-warning`);

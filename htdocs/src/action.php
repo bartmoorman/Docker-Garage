@@ -123,7 +123,7 @@ switch ($_REQUEST['func']) {
   case 'getPosition':
     if ($garage->isValidSession()) {
       if (!empty($_REQUEST['device'])) {
-        if ($output['data'] = $garage->getPosition($_REQUEST['device'])) {
+        if (is_numeric($output['data'] = $garage->getPosition($_REQUEST['device']))) {
           $output['success'] = true;
           $putEvent = false;
         } else {
