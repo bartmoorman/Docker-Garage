@@ -7,10 +7,16 @@ if ($garage->isConfigured('sensor') && $lat = getenv('LAT') && $long = getenv('L
   while (true) {
     $sunrise = date_sunrise(time(), SUNFUNCS_RET_TIMESTAMP, $lat, $long);
     $sunset = date_sunset(time(), SUNFUNCS_RET_TIMESTAMP, $lat, $long);
-    if ($garage->getPosition('sensor') == 0 && (time() < $sunrise || time() > $sunset) && !$garage->memcacheConn->get('notifiedOpen')) {
-      $message = sprintf('The garage door is OPEN!');
-      msg_send($garage->queueConn, 2, $message, true, false);
-      $garage->memcacheConn->set('notifiedOpen', time(), 60 * 30);
+    if (time() < $sunrise || time() > $sunset) {
+      if ($garage->getPosition('sensor') == 0 && !$garage->memcacheConn->get('notifiedOpen')) {
+        $message = sprintf('The garage is OPEN');
+        msg_send($garage->queueConn, 2, $message);
+        $garage->memcacheConn->set('notifiedOpen', time(), 60 * 30);
+      } elseif ($garage->getPosition('sensor') == 1 && $garage->memcacheConn->get('notifiedOpen')) {
+        $message = sprintf('The garage now is CLOSED');
+        msg_send($garage->queueConn, 2, $message);
+        $garage->memcacheConn->delete('notifiedOpen');
+      }
     }
     sleep(15);
   }

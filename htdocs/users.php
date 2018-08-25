@@ -75,7 +75,7 @@ foreach ($garage->getUsers() as $user) {
                 </div>
                 <div class='form-group col'>
                   <label>Last Name</label>
-                  <input class='form-control' id='last_name' type='text' name='last_name''>
+                  <input class='form-control' id='last_name' type='text' name='last_name'>
                 </div>
               </div>
               <div class='form-row'>

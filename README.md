@@ -1,4 +1,4 @@
-## This is designed for a Raspberry Pi Zero W
+## This is designed for a Raspberry Pi
 
 ### Usage
 ```
