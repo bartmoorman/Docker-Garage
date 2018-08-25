@@ -3,10 +3,14 @@
 require_once('/var/www/localhost/htdocs/inc/garage.class.php');
 $garage = new Garage(false, false, false, false);
 
-if ($garage->isConfigured('sensor') && $lat = getenv('LAT') && $long = getenv('LONG')) {
+if ($garage->isConfigured('sensor')) {
+  $latitude = getenv('LATITUDE') ?: ini_get('date.default_latitude');
+  $longitude = getenv('LONGITUDE') ?: ini_get('date.default_longitude');
+  $riseZenith = getenv('RISE_ZENITH') ?: ini_get('date.sunrise_zenith');
+  $setZenith = getenv('SET_ZENITH') ?: ini_get('date.sunset_zenith');
   while (true) {
-    $sunrise = date_sunrise(time(), SUNFUNCS_RET_TIMESTAMP, $lat, $long);
-    $sunset = date_sunset(time(), SUNFUNCS_RET_TIMESTAMP, $lat, $long);
+    $sunrise = date_sunrise(time(), SUNFUNCS_RET_TIMESTAMP, $latitude, $longitude, $riseZenith);
+    $sunset = date_sunset(time(), SUNFUNCS_RET_TIMESTAMP, $latitude, $longitude, $setZenith);
     if (time() < $sunrise || time() > $sunset) {
       if ($garage->getPosition('sensor') == 0 && !$garage->memcacheConn->get('notifiedOpen')) {
         $message = sprintf('The garage is OPEN');
@@ -21,7 +25,7 @@ if ($garage->isConfigured('sensor') && $lat = getenv('LAT') && $long = getenv('L
     sleep(15);
   }
 } else {
-  echo 'Sensor and/or lat/long are not configured. Exiting.' . PHP_EOL;
+  echo 'Sensor is not configured. Exiting.' . PHP_EOL;
   exit;
 }
 ?>

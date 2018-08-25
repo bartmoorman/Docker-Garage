@@ -13,9 +13,7 @@ FROM bmoorman/alpine:armhf
 
 ENV HTTPD_SERVERNAME="localhost" \
     OPENER_PIN="23:high" \
-    SENSOR_PIN="24:in" \
-    LAT="40.760779" \
-    LONG="-111.891047"
+    SENSOR_PIN="24:in"
 
 RUN apk add --no-cache \
     apache2 \
