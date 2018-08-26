@@ -1,6 +1,9 @@
 <?php
 require_once('inc/garage.class.php');
 $garage = new Garage(true, true, false, false);
+
+$sunrise = date('h:i A', date_sunrise(time(), SUNFUNCS_RET_TIMESTAMP, $garage->astro['latitude'], $garage->astro['longitude'], $garage->astro['zenith']['sunrise']));
+$sunset = date('h:i A', date_sunset(time(), SUNFUNCS_RET_TIMESTAMP, $garage->astro['latitude'], $garage->astro['longitude'], $garage->astro['zenith']['sunset']));
 ?>
 <!DOCTYPE html>
 <html lang='en'>
@@ -36,6 +39,11 @@ if ($garage->isConfigured('opener')) {
   echo "            <button class='btn btn-lg btn-outline-info id-activate' data-device='opener'><h2 class='my-auto'>ACTIVATE</h2></button>" . PHP_EOL;
   echo "          </div>" . PHP_EOL;
 }
+
+echo "          <div class='modal-footer'>" . PHP_EOL;
+echo "            <h5 class='modal-title text-muted mx-auto'><span class='fa fa-fw fa-sun'></span> {$sunrise}</h5>" . PHP_EOL;
+echo "            <h5 class='modal-title text-muted mx-auto'><span class='fa fa-fw fa-moon'></span> {$sunset}</h5>" . PHP_EOL;
+echo "          </div>" . PHP_EOL;
 ?>
         </div>
       </div>

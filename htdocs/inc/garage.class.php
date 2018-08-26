@@ -11,6 +11,7 @@ class Garage {
   private $pushoverAppToken;
   private $devices = ['opener' => null, 'sensor' => null];
   private $gpioValue = '/sys/class/gpio/gpio%u/value';
+  public $astro = [];
   public $pageLimit = 20;
 
   public function __construct($requireConfigured = true, $requireValidSession = true, $requireAdmin = true, $requireIndex = false) {
@@ -58,6 +59,11 @@ class Garage {
         $this->devices[$device] = substr($env, 0, $pos);
       }
     }
+
+    $this->astro['latitude'] = getenv('LATITUDE') ?: ini_get('date.default_latitude');
+    $this->astro['longitude'] = getenv('LONGITUDE') ?: ini_get('date.default_longitude');
+    $this->astro['zenith']['sunrise'] = getenv('SUNRISE_ZENITH') ?: ini_get('date.sunrise_zenith');
+    $this->astro['zenith']['sunset'] = getenv('SUNSET_ZENITH') ?: ini_get('date.sunset_zenith');
   }
 
   private function connectDb() {
