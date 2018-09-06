@@ -57,5 +57,5 @@ $(which su) \
 
 exec $(which apachectl) \
     -D FOREGROUND \
-    -D ${HTTPD_SECURITY:-HTTPD_SSL} \
-    -D ${HTTPD_REDIRECT:-HTTPD_REDIRECT_SSL}
+    -D ${HTTPD_SSL:-SSL} \
+    -D ${HTTPD_REDIRECT:-REDIRECT}

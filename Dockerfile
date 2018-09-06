@@ -12,6 +12,7 @@ RUN apk add --no-cache --virtual .build-deps \
 FROM bmoorman/alpine:armhf
 
 ENV HTTPD_SERVERNAME="localhost" \
+    HTTPD_PORT="8440" \
     OPENER_PIN="23:high" \
     SENSOR_PIN="24:in"
 
@@ -38,8 +39,8 @@ COPY bin/ /usr/local/bin/
 
 VOLUME /config
 
-EXPOSE 8440
+EXPOSE ${HTTPD_PORT}
 
 CMD ["/etc/apache2/start.sh"]
 
-HEALTHCHECK --interval=60s --timeout=5s CMD curl --silent --location --fail http://localhost:80/ > /dev/null || exit 1
+HEALTHCHECK --interval=60s --timeout=5s CMD /etc/apache2/healthcheck.sh || exit 1
