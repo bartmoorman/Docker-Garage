@@ -9,11 +9,11 @@ if ($garage->isConfigured('sensor')) {
     $sunset = date_sunset(time(), SUNFUNCS_RET_TIMESTAMP, $garage->astro['latitude'], $garage->astro['longitude'], $garage->astro['zenith']['sunset']);
     if (time() < $sunrise || time() > $sunset) {
       if ($garage->getPosition('sensor') == 0 && !$garage->memcacheConn->get('notifiedOpen')) {
-        $message = sprintf('The garage is OPEN');
+        $message = sprintf('Garage is OPEN');
         msg_send($garage->queueConn, 2, $message);
         $garage->memcacheConn->set('notifiedOpen', time(), 60 * 30);
       } elseif ($garage->getPosition('sensor') == 1 && $garage->memcacheConn->get('notifiedOpen')) {
-        $message = sprintf('The garage now is CLOSED');
+        $message = sprintf('Garage is CLOSED');
         msg_send($garage->queueConn, 2, $message);
         $garage->memcacheConn->delete('notifiedOpen');
       }

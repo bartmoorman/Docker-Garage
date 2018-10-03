@@ -390,8 +390,22 @@ EOQ;
         usleep(500000);
         if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 1)) {
           if ($user = $this->getUserDetails($_SESSION['user_id'])) {
+            if ($this->isConfigured('sensor')) {
+              switch ($this->getPosition('sensor')) {
+                case 0:
+                  $status = 'CLOSED';
+                  break;
+                case 1:
+                  $status = 'OPENED';
+                  break;
+                default:
+                  $status = 'ACTIVATED';
+              }
+            } else {
+              $status = 'ACTIVATED';
+            }
             $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
-            $message = sprintf('%s was activated by %s (user_id: %u)', strtoupper($device), $user_name, $user['user_id']);
+            $message = sprintf('Garage was %s by %s (user_id: %u)', $status, $user_name, $user['user_id']);
             msg_send($this->queueConn, 1, $message, true, false);
           }
           return true;
