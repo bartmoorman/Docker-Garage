@@ -30,7 +30,8 @@ RUN apk add --no-cache \
     php7-session \
     php7-sqlite3 \
     php7-sysvmsg \
- && useradd -c memcached -r -s /sbin/nologin memcached
+ && addgroup -S memcached \
+ && adduser -S -D -H -s /sbin/nologin -G memcached -g memcached memcached
 
 COPY --from=builder /opt/memcached/memcached /usr/bin
 COPY apache2/ /etc/apache2/

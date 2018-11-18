@@ -387,7 +387,7 @@ EOQ;
   public function doActivate($device) {
     if ($this->isConfigured($device)) {
       if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 0)) {
-        usleep(500000);
+        usleep(750000);
         if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 1)) {
           if ($user = $this->getUserDetails($_SESSION['user_id'])) {
             if ($this->isConfigured('sensor')) {
