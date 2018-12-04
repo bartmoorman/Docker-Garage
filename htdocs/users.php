@@ -31,7 +31,7 @@ include_once('header.php');
         </thead>
         <tbody>
 <?php
-foreach ($garage->getUsers() as $user) {
+foreach ($garage->getObjects('users') as $user) {
   $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
   $begin = !empty($user['begin']) ? date('m/d/Y, h:i A', $user['begin']) : null;
   $end = !empty($user['end']) ? date('m/d/Y, h:i A', $user['end']) : null;
@@ -175,7 +175,7 @@ for ($priority = -2; $priority <= 2; $priority++) {
           $('form').removeData('user_id').data('func', 'updateUser').trigger('reset');
           $('button.id-modify').removeClass('d-none').removeData('user_id');
           $('button.id-submit').removeClass('btn-success').addClass('btn-info').text('Save');
-          $.get('src/action.php', {"func": "getUserDetails", "user_id": $(this).data('user_id')})
+          $.get('src/action.php', {"func": "getObjectDetails", "type": "user", "value": $(this).data('user_id')})
             .done(function(data) {
               if (data.success) {
                 user = data.data;
@@ -199,20 +199,20 @@ for ($priority = -2; $priority <= 2; $priority++) {
               }
             })
             .fail(function(jqxhr, textStatus, errorThrown) {
-              console.log(`getUserDetails failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
+              console.log(`getObjectDetails failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
             });
         });
 
         $('button.id-modify').click(function() {
           if (confirm(`Want to ${$(this).data('action').toUpperCase()} user ${$(this).data('user_id')}?`)) {
-            $.get('src/action.php', {"func": "modifyUser", "action": $(this).data('action'), "user_id": $(this).data('user_id')})
+            $.get('src/action.php', {"func": "modifyObject", "action": $(this).data('action'), "type": "user_id", "value": $(this).data('user_id')})
               .done(function(data) {
                 if (data.success) {
                   location.reload();
                 }
               })
               .fail(function(jqxhr, textStatus, errorThrown) {
-                console.log(`modifyUser failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
+                console.log(`modifyObject failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
               });
           }
         });
