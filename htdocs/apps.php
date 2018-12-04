@@ -30,8 +30,8 @@ include_once('header.php');
         <tbody>
 <?php
 foreach ($garage->getObjects('apps') as $app) {
-  $begin = !empty($app['begin']) ? date('m/d/Y, h:i A', $app['begin']) : null;
-  $end = !empty($app['end']) ? date('m/d/Y, h:i A', $app['end']) : null;
+  $begin = !empty($app['begin']) ? date('m/d/Y, h:i A', $app['begin']) : '&infin;';
+  $end = !empty($app['end']) ? date('m/d/Y, h:i A', $app['end']) : '&infin;';
   $tableClass = $app['disabled'] ? 'text-warning' : 'table-default';
   echo "          <tr class='{$tableClass}'>" . PHP_EOL;
   echo "            <td><button type='button' class='btn btn-sm btn-outline-info id-details' data-app_id='{$app['app_id']}'>Details</button></td>" . PHP_EOL;

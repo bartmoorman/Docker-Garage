@@ -33,8 +33,8 @@ include_once('header.php');
 <?php
 foreach ($garage->getObjects('users') as $user) {
   $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
-  $begin = !empty($user['begin']) ? date('m/d/Y, h:i A', $user['begin']) : null;
-  $end = !empty($user['end']) ? date('m/d/Y, h:i A', $user['end']) : null;
+  $begin = !empty($user['begin']) ? date('m/d/Y, h:i A', $user['begin']) : '&infin;';
+  $end = !empty($user['end']) ? date('m/d/Y, h:i A', $user['end']) : '&infin;';
   $tableClass = $user['disabled'] ? 'text-warning' : 'table-default';
   echo "          <tr class='{$tableClass}'>" . PHP_EOL;
   echo "            <td><button type='button' class='btn btn-sm btn-outline-info id-details' data-user_id='{$user['user_id']}'>Details</button></td>" . PHP_EOL;
