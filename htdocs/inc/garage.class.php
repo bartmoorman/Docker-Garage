@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `events` (
 CREATE TABLE IF NOT EXISTS `apps` (
   `app_id` INTEGER PRIMARY KEY AUTOINCREMENT,
   `name` TEXT NOT NULL,
-  `token` TEXT NOT NULL UNIQUE,
+  `key` TEXT NOT NULL UNIQUE,
   `begin` INTEGER,
   `end` INTEGER,
   `disabled` INTEGER NOT NULL DEFAULT 0
@@ -181,7 +181,7 @@ EOQ;
       case 'user_id':
         $table = 'users';
         break;
-      case 'token':
+      case 'key':
       case 'app_id':
         $table = 'apps';
         break;
@@ -255,12 +255,12 @@ EOQ;
     return false;
   }
 
-  public function createApp($name, $token = null, $begin = null, $end = null) {
-    $token = !$token ? bin2hex(random_bytes(8)) : $this->dbConn->escapeString($token);
+  public function createApp($name, $key = null, $begin = null, $end = null) {
+    $key = !$key ? bin2hex(random_bytes(8)) : $this->dbConn->escapeString($key);
     $query = <<<EOQ
 SELECT COUNT(*)
 FROM `apps`
-WHERE `token` = '{$token}';
+WHERE `key` = '{$key}';
 EOQ;
     if (!$this->dbConn->querySingle($query)) {
       $name = $this->dbConn->escapeString($name);
@@ -268,8 +268,8 @@ EOQ;
       $end = $this->dbConn->escapeString($end);
       $query = <<<EOQ
 INSERT
-INTO `apps` (`name`, `token`, `begin`, `end`)
-VALUES ('{$name}', '{$token}', STRFTIME('%s','{$begin}',) STRFTIME('%s','{$end}'));
+INTO `apps` (`name`, `key`, `begin`, `end`)
+VALUES ('{$name}', '{$key}', STRFTIME('%s','{$begin}'), STRFTIME('%s','{$end}'));
 EOQ;
       if ($this->dbConn->exec($query)) {
         return true;
@@ -323,14 +323,14 @@ EOQ;
     return false;
   }
 
-  public function updateApp($app_id, $name, $token, $begin, $end) {
+  public function updateApp($app_id, $name, $key, $begin, $end) {
     $app_id = $this->dbConn->escapeString($app_id);
-    $token = $this->dbConn->escapeString($token);
+    $key = $this->dbConn->escapeString($key);
     $query = <<<EOQ
 SELECT COUNT(*)
 FROM `apps`
 WHERE `app_id` != '{$app_id}'
-AND `token` = '{$token}';
+AND `key` = '{$key}';
 EOQ;
     if (!$this->dbConn->querySingle($query)) {
       $name = $this->dbConn->escapeString($name);
@@ -340,7 +340,7 @@ EOQ;
 UPDATE `apps`
 SET
   `name` = '{$name}',
-  `token` = '{$token}',
+  `key` = '{$key}',
   `begin` = STRFTIME('%s', '{$begin}'),
   `end` = STRFTIME('%s', '{$end}')
 WHERE `app_id` = '{$app_id}';
@@ -363,7 +363,7 @@ EOQ;
         $table = 'users';
         $extra_table = 'events';
         break;
-      case 'token':
+      case 'key':
       case 'app_id':
         $table = 'apps';
         $extra_table = 'calls';
@@ -412,7 +412,7 @@ EOQ;
         break;
       case 'apps':
         $query = <<<EOQ
-SELECT `app_id`, `name`, `token`, `begin`, `end`, `disabled`
+SELECT `app_id`, `name`, `key`, `begin`, `end`, `disabled`
 FROM `apps`
 ORDER BY `name`;
 EOQ;
@@ -440,7 +440,7 @@ EOQ;
         break;
       case 'app':
         $query = <<<EOQ
-SELECT `app_id`, `name`, `token`, STRFTIME('%Y-%m-%dT%H:%M', `begin`, 'unixepoch') AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', `end`, 'unixepoch') AS `end`, `disabled`
+SELECT `app_id`, `name`, `key`, STRFTIME('%Y-%m-%dT%H:%M', `begin`, 'unixepoch') AS `begin`, STRFTIME('%Y-%m-%dT%H:%M', `end`, 'unixepoch') AS `end`, `disabled`
 FROM `apps`
 WHERE `app_id` = '{$value}';
 EOQ;
@@ -501,24 +501,24 @@ EOQ;
 
   public function doActivate($device) {
     if ($this->isConfigured($device)) {
+      if ($this->isConfigured('sensor')) {
+        switch ($this->getPosition('sensor')) {
+          case '0':
+            $status = 'CLOSED';
+            break;
+          case '1':
+            $status = 'OPENED';
+            break;
+          default:
+            $status = 'ACTIVATED';
+        }
+      } else {
+        $status = 'ACTIVATED';
+      }
       if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 0)) {
         usleep(750000);
         if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 1)) {
           if ($user = $this->getObjectDetails('user', $_SESSION['user_id'])) {
-            if ($this->isConfigured('sensor')) {
-              switch ($this->getPosition('sensor')) {
-                case 0:
-                  $status = 'CLOSED';
-                  break;
-                case 1:
-                  $status = 'OPENED';
-                  break;
-                default:
-                  $status = 'ACTIVATED';
-              }
-            } else {
-              $status = 'ACTIVATED';
-            }
             $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
             $message = sprintf('Garage was %s by %s (user_id: %u)', $status, $user_name, $user['user_id']);
             msg_send($this->queueConn, 1, $message, true, false);

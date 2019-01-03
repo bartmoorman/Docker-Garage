@@ -59,8 +59,8 @@ foreach ($garage->getObjects('apps') as $app) {
                   <input class='form-control' id='name' type='text' name='name' required>
                 </div>
                 <div class='form-group col'>
-                  <label>Access Token <sup class='text-danger id-required' data-toggle='tooltip' title='Required'>*</sup></label>
-                  <input class='form-control id-token' id='token' type='text' name='token' minlength='16' maxlength='16' pattern='[A-Za-z0-9]{16}' required>
+                  <label>Access Key <sup class='text-danger id-required' data-toggle='tooltip' title='Required'>*</sup></label>
+                  <input class='form-control id-key' id='key' type='text' name='key' minlength='16' maxlength='16' pattern='[A-Za-z0-9]{16}' required>
                 </div>
               </div>
               <div class='form-row'>
@@ -95,7 +95,7 @@ foreach ($garage->getObjects('apps') as $app) {
           $('h5.modal-title').text('Add App');
           $('form').removeData('app_id').data('func', 'createApp').trigger('reset');
           $('sup.id-required').addClass('d-none');
-          $('input.id-token').prop('required', false).attr('placeholder', 'Will be generated if empty');
+          $('input.id-key').prop('required', false).attr('placeholder', 'Will be generated if empty');
           $('button.id-modify').addClass('d-none').removeData('app_id');
           $('button.id-submit').removeClass('btn-info').addClass('btn-success').text('Add');
           $('div.id-modal').modal('toggle');
@@ -105,7 +105,7 @@ foreach ($garage->getObjects('apps') as $app) {
           $('h5.modal-title').text('App Details');
           $('form').removeData('app_id').data('func', 'updateApp').trigger('reset');
           $('sup.id-required').removeClass('d-none');
-          $('input.id-token').removeAttr('placeholder').prop('required', true);
+          $('input.id-key').removeAttr('placeholder').prop('required', true);
           $('button.id-modify').removeClass('d-none').removeData('app_id');
           $('button.id-submit').removeClass('btn-success').addClass('btn-info').text('Save');
           $.get('src/action.php', {"func": "getObjectDetails", "type": "app", "value": $(this).data('app_id')})
@@ -114,7 +114,7 @@ foreach ($garage->getObjects('apps') as $app) {
                 app = data.data;
                 $('form').data('app_id', app.app_id);
                 $('#name').val(app.name);
-                $('#token').val(app.token);
+                $('#key').val(app.key);
                 $('#begin').val(app.begin);
                 $('#end').val(app.end);
                 $('button.id-modify.id-volatile').data('action', app.disabled ? 'enable' : 'disable').text(app.disabled ? 'Enable' : 'Disable');
@@ -143,7 +143,7 @@ foreach ($garage->getObjects('apps') as $app) {
 
         $('form').submit(function(e) {
           e.preventDefault();
-          $.post('src/action.php', {"func": $(this).data('func'), "app_id": $(this).data('app_id'), "name": $('#name').val(), "token": $('#token').val(), "begin": $('#begin').val(), "end": $('#end').val()})
+          $.post('src/action.php', {"func": $(this).data('func'), "app_id": $(this).data('app_id'), "name": $('#name').val(), "key": $('#key').val(), "begin": $('#begin').val(), "end": $('#end').val()})
             .done(function(data) {
               if (data.success) {
                 location.reload();

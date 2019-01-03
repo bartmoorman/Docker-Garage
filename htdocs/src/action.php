@@ -44,10 +44,10 @@ switch ($_REQUEST['func']) {
   case 'createApp':
     if ($garage->isValidSession() && $garage->isAdmin()) {
       if (!empty($_REQUEST['name'])) {
-        $token = isset($_REQUEST['token']) ? $_REQUEST['token'] : null;
+        $key = isset($_REQUEST['key']) ? $_REQUEST['key'] : null;
         $begin = !empty($_REQUEST['begin']) ? $_REQUEST['begin'] : null;
         $end = !empty($_REQUEST['end']) ? $_REQUEST['end'] : null;
-        $output['success'] = $garage->createApp($_REQUEST['name'], $token, $begin, $end);
+        $output['success'] = $garage->createApp($_REQUEST['name'], $key, $begin, $end);
       } else {
         header('HTTP/1.1 400 Bad Request');
         $output['success'] = false;
@@ -85,10 +85,10 @@ switch ($_REQUEST['func']) {
     break;
   case 'updateApp':
     if ($garage->isValidSession() && $garage->isAdmin()) {
-      if (!empty($_REQUEST['app_id']) && !empty($_REQUEST['name']) && !empty($_REQUEST['token'])) {
+      if (!empty($_REQUEST['app_id']) && !empty($_REQUEST['name']) && !empty($_REQUEST['key'])) {
         $begin = !empty($_REQUEST['begin']) ? $_REQUEST['begin'] : null;
         $end = !empty($_REQUEST['end']) ? $_REQUEST['end'] : null;
-        $output['success'] = $garage->updateApp($_REQUEST['app_id'], $_REQUEST['name'], $_REQUEST['token'], $begin, $end);
+        $output['success'] = $garage->updateApp($_REQUEST['app_id'], $_REQUEST['name'], $_REQUEST['key'], $begin, $end);
         $log['app_id'] = $_REQUEST['app_id'];
       } else {
         header('HTTP/1.1 400 Bad Request');
@@ -142,7 +142,7 @@ switch ($_REQUEST['func']) {
     }
     break;
   case 'doActivate':
-    if ($garage->isValidSession() || (array_key_exists('token', $_REQUEST) && $garage->isValidObject('token', $_REQUEST['token']))) {
+    if ($garage->isValidSession() || (array_key_exists('key', $_REQUEST) && $garage->isValidObject('key', $_REQUEST['key']))) {
       if (!empty($_REQUEST['device'])) {
         $output['success'] = $garage->doActivate($_REQUEST['device']);
         $log['device'] = $_REQUEST['device'];
@@ -158,7 +158,7 @@ switch ($_REQUEST['func']) {
     }
     break;
   case 'getPosition':
-    if ($garage->isValidSession() || (array_key_exists('token', $_REQUEST) && $garage->isValidObject('token', $_REQUEST['token']))) {
+    if ($garage->isValidSession() || (array_key_exists('key', $_REQUEST) && $garage->isValidObject('key', $_REQUEST['key']))) {
       if (!empty($_REQUEST['device'])) {
         if (is_numeric($output['data'] = $garage->getPosition($_REQUEST['device']))) {
           $output['success'] = true;
