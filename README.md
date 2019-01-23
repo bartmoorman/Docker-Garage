@@ -5,7 +5,7 @@
 docker run \
 --detach \
 --name memcached \
-memcached:latest
+memcached:alpine
 
 docker run \
 --detach \
@@ -26,7 +26,7 @@ bmoorman/garage:latest
 version: "3.7"
 services:
   memcached:
-    image: memcached:latest
+    image: memcached:alpine
     container_name: memcached
 
   garage:
