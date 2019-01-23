@@ -131,7 +131,7 @@ EOQ;
 
   private function connectMemcache() {
     if ($this->memcacheConn = new Memcached()) {
-      $this->memcacheConn->addServer('localhost', null);
+      $this->memcacheConn->addServer('memcached', 11211);
       return true;
     }
     return false;

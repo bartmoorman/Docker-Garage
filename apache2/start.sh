@@ -36,13 +36,6 @@ elif [ ! -d /var/run/apache2 ]; then
     mkdir -p /var/run/apache2
 fi
 
-$(which memcached) \
-    -l 127.0.0.1 \
-    -d \
-    -u memcached
-
-sleep 1
-
 $(which su) \
     -c $(which schedule.php) \
     -s /bin/sh \
@@ -54,6 +47,8 @@ $(which su) \
     -c $(which notifications.php) \
     -s /bin/sh \
     apache &
+
+sleep 1
 
 exec $(which apachectl) \
     -D FOREGROUND \
