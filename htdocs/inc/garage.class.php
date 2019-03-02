@@ -18,6 +18,8 @@ class Garage {
     session_start([
       'save_path' => '/config/sessions',
       'name' => '_sess_garage',
+      'gc_probability' => 1,
+      'gc_divisor' => 1000,
       'gc_maxlifetime' => 60 * 60 * 24,
       'cookie_lifetime' => 60 * 60 * 24,
       'cookie_secure' => true,
