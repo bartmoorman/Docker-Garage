@@ -1,4 +1,4 @@
-FROM --platform=armhf bmoorman/alpine:armhf-3.8
+FROM bmoorman/alpine:armhf-3.8
 
 ENV HTTPD_SERVERNAME="localhost" \
     HTTPD_PORT="8440" \
