@@ -4,7 +4,7 @@ date_default_timezone_set(getenv('TZ'));
 class Garage {
   private $dbFile = '/config/garage.db';
   private $dbConn;
-  public $memcachedHost;
+  private $memcachedHost;
   public $memcachedConn;
   private $queueKey = 8440;
   public $queueSize = 512;
@@ -35,6 +35,7 @@ class Garage {
       $this->initDb();
     }
 
+    $this->memcachedHost = getenv('MEMCACHED_HOST');
     $this->connectMemcached();
 
     $this->connectQueue();
@@ -54,7 +55,6 @@ class Garage {
       exit;
     }
 
-    $this->memcachedHost = getenv('MEMCACHED_HOST');
     $this->pushoverAppToken = getenv('PUSHOVER_APP_TOKEN');
 
     foreach (array_keys($this->devices) as $device) {
