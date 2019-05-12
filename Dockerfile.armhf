@@ -2,6 +2,7 @@ FROM bmoorman/alpine:armhf-3.8
 
 ENV HTTPD_SERVERNAME="localhost" \
     HTTPD_PORT="8440" \
+    MEMCACHED_HOST="memcached" \
     OPENER_PIN="23:high" \
     SENSOR_PIN="24:in"
 
