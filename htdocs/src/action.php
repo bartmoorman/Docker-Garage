@@ -36,7 +36,7 @@ switch ($_REQUEST['func']) {
         $output['message'] = 'Missing arguments';
       }
     } else {
-      header('HTTP/1.1 403 Forbidden');
+      header('HTTP/1.1 401 Unauthorized');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }
@@ -54,7 +54,7 @@ switch ($_REQUEST['func']) {
         $output['message'] = 'No name supplied';
       }
     } else {
-      header('HTTP/1.1 403 Forbidden');
+      header('HTTP/1.1 401 Unauthorized');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }    break;
@@ -78,7 +78,7 @@ switch ($_REQUEST['func']) {
         $output['message'] = 'Missing arguments';
       }
     } else {
-      header('HTTP/1.1 403 Forbidden');
+      header('HTTP/1.1 401 Unauthorized');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }
@@ -96,7 +96,7 @@ switch ($_REQUEST['func']) {
         $output['message'] = 'Missing arguments';
       }
     } else {
-      header('HTTP/1.1 403 Forbidden');
+      header('HTTP/1.1 401 Unauthorized');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }
@@ -114,7 +114,7 @@ switch ($_REQUEST['func']) {
         $output['message'] = 'Missing arguments';
       }
     } else {
-      header('HTTP/1.1 403 Forbidden');
+      header('HTTP/1.1 401 Unauthorized');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }
@@ -136,7 +136,7 @@ switch ($_REQUEST['func']) {
         $output['message'] = 'Missing arguments';
       }
     } else {
-      header('HTTP/1.1 403 Forbidden');
+      header('HTTP/1.1 401 Unauthorized');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }
@@ -152,7 +152,7 @@ switch ($_REQUEST['func']) {
         $output['message'] = 'No device supplied';
       }
     } else {
-      header('HTTP/1.1 403 Forbidden');
+      header('HTTP/1.1 401 Unauthorized');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }
@@ -173,7 +173,17 @@ switch ($_REQUEST['func']) {
         $output['message'] = 'No device supplied';
       }
     } else {
-      header('HTTP/1.1 403 Forbidden');
+      header('HTTP/1.1 401 Unauthorized');
+      $output['success'] = false;
+      $output['message'] = 'Unauthorized';
+    }
+    break;
+  case 'suppressOpenNotifications':
+    if (array_key_exists('nonce', $_REQUEST) && $garage->isValidNonce('suppressOpenNotifications', $_REQUEST['nonce'])) {
+      $output['success'] = $garage->suppressOpenNotifications();
+      $garage->expireNonce('suppressOpenNotifications', $_REQUEST['nonce']);
+    } else {
+      header('HTTP/1.1 401 Unauthorized');
       $output['success'] = false;
       $output['message'] = 'Unauthorized';
     }

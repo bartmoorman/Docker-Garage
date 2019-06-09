@@ -10,6 +10,7 @@ class Garage {
   public $queueSize = 512;
   public $queueConn;
   private $pushoverAppToken;
+  public $serverURL;
   private $devices = ['opener' => null, 'sensor' => null];
   private $gpioValue = '/sys/class/gpio/gpio%u/value';
   public $astro = [];
@@ -23,7 +24,7 @@ class Garage {
       'gc_divisor' => 1000,
       'gc_maxlifetime' => 60 * 60 * 24,
       'cookie_lifetime' => 60 * 60 * 24,
-      'cookie_secure' => true,
+      'cookie_secure' => $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? $_SERVER['REQUEST_SCHEME'] == 'https' ? true : false,
       'cookie_httponly' => true,
       'use_strict_mode' => true
     ]);
@@ -56,6 +57,7 @@ class Garage {
     }
 
     $this->pushoverAppToken = getenv('PUSHOVER_APP_TOKEN');
+    $this->serverURL = sprintf('%s://%s', $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? $_SERVER['REQUEST_SCHEME'] ?? 'http', getenv('HTTPD_SERVERNAME'));
 
     foreach (array_keys($this->devices) as $device) {
       $env = getenv(strtoupper($device) . '_PIN');
@@ -209,6 +211,13 @@ EOQ;
     return false;
   }
 
+  public function isValidNonce($type, $value) {
+    if ($this->memcachedConn->get(sprintf('%s_%s', $type, $value))) {
+      return true;
+    }
+    return false;
+  }
+
   public function resolveObject($type, $value) {
     $type = $this->dbConn->escapeString($type);
     $value = $this->dbConn->escapeString($value);
@@ -303,6 +312,14 @@ EOQ;
       if ($this->dbConn->exec($query)) {
         return true;
       }
+    }
+    return false;
+  }
+
+  public function createNonce($type, $period) {
+    $nonce = bin2hex(random_bytes(20));
+    if ($this->memcachedConn->set(sprintf('%s_%s', $type, $nonce), time(), 60 * $period)) {
+      return $nonce;
     }
     return false;
   }
@@ -425,6 +442,13 @@ EOQ;
         break;
     }
     if ($this->dbConn->exec($query)) {
+      return true;
+    }
+    return false;
+  }
+
+  public function expireNonce($type, $value) {
+    if ($this->memcachedConn->delete(sprintf('%s_%s', $type, $value))) {
       return true;
     }
     return false;
@@ -565,7 +589,7 @@ EOQ;
         if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 1)) {
           if ($user = $this->getObjectDetails('user', $_SESSION['user_id'])) {
             $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
-            $message = sprintf('Garage was %s by %s (user_id: %u)', $status, $user_name, $user['user_id']);
+            $message = ['body' => sprintf('Garage was %s by %s (user_id: %u)', $status, $user_name, $user['user_id'])];
             msg_send($this->queueConn, 1, $message, true, false);
           }
           return true;
@@ -610,7 +634,7 @@ EOQ;
       while ($user = $users->fetchArray(SQLITE3_ASSOC)) {
         $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
         foreach ($messages as $message) {
-          curl_setopt($ch, CURLOPT_POSTFIELDS, ['user' => $user['pushover_user'], 'token' => $user['pushover_token'], 'message' => $message, 'priority' => $user['pushover_priority'], 'retry' => $user['pushover_retry'], 'expire' => $user['pushover_expire'], 'sound' => $user['pushover_sound']]);
+          curl_setopt($ch, CURLOPT_POSTFIELDS, ['user' => $user['pushover_user'], 'token' => $user['pushover_token'], 'message' => $message['body'], 'url' => $message['url'], 'priority' => $user['pushover_priority'], 'retry' => $user['pushover_retry'], 'expire' => $user['pushover_expire'], 'sound' => $user['pushover_sound']]);
           curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
           if (curl_exec($ch) !== false && curl_getinfo($ch, CURLINFO_RESPONSE_CODE) == 200) {
             $status = 'successful';
@@ -621,6 +645,13 @@ EOQ;
         }
       }
       curl_close($ch);
+      return true;
+    }
+    return false;
+  }
+
+  public function suppressOpenNotifications() {
+    if ($this->memcachedConn->set('notifiedOpen', time(), 60 * 60 * 3)) {
       return true;
     }
     return false;
