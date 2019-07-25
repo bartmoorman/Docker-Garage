@@ -178,10 +178,16 @@ switch ($_REQUEST['func']) {
       $output['message'] = 'Unauthorized';
     }
     break;
-  case 'suppressOpenNotifications':
-    if (array_key_exists('nonce', $_REQUEST) && $garage->isValidNonce('suppressOpenNotifications', $_REQUEST['nonce'])) {
-      $output['success'] = $garage->suppressOpenNotifications();
-      $garage->expireNonce('suppressOpenNotifications', $_REQUEST['nonce']);
+  case 'suppressNotifications':
+    if (array_key_exists('nonce', $_REQUEST) && $garage->isValidNonce('suppressNotifications', $_REQUEST['nonce'])) {
+      if (!empty($_REQUEST['position'])) {
+        $output['success'] = $garage->suppressNotifications($_REQUEST['position']);
+        $garage->expireNonce('suppressNotifications', $_REQUEST['nonce']);
+      } else {
+        header('HTTP/1.1 400 Bad Request');
+        $output['success'] = false;
+        $output['message'] = 'Missing arguments';
+      }
     } else {
       header('HTTP/1.1 401 Unauthorized');
       $output['success'] = false;

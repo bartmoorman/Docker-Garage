@@ -9,8 +9,8 @@ if ($garage->isConfigured('sensor')) {
     $sunset = date_sunset(time(), SUNFUNCS_RET_TIMESTAMP, $garage->astro['latitude'], $garage->astro['longitude'], $garage->astro['zenith']['sunset']);
     if (time() < $sunrise || time() > $sunset) {
       if ($garage->getPosition('sensor') == 0 && !$garage->memcachedConn->get('notifiedOpen')) {
-        if ($nonce = $garage->createNonce('suppressOpenNotifications', 30)) {
-          $message = ['body' => sprintf('Garage is OPEN'), 'url' => sprintf('%s/src/action.php?func=suppressOpenNotifications&nonce=%s', $garage->serverURL, $nonce)];
+        if ($nonce = $garage->createNonce('suppressNotifications', 60 * 30)) {
+          $message = ['body' => sprintf('Garage is OPEN'), 'url' => sprintf('%s/src/action.php?func=suppressNotifications&nonce=%s&position=%s', $garage->serverURL, $nonce, 'open')];
         } else {
           $message = ['body' => sprintf('Garage is OPEN')];
         }

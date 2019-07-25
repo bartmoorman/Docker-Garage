@@ -318,7 +318,7 @@ EOQ;
 
   public function createNonce($type, $period) {
     $nonce = bin2hex(random_bytes(20));
-    if ($this->memcachedConn->set(sprintf('%s_%s', $type, $nonce), time(), 60 * $period)) {
+    if ($this->memcachedConn->set(sprintf('%s_%s', $type, $nonce), time(), $period)) {
       return $nonce;
     }
     return false;
@@ -650,8 +650,8 @@ EOQ;
     return false;
   }
 
-  public function suppressOpenNotifications() {
-    if ($this->memcachedConn->set('notifiedOpen', time(), 60 * 60 * 3)) {
+  public function suppressNotifications($position) {
+    if ($this->memcachedConn->set(sprintf('notified%s', ucfirst($position)), time(), 60 * 60 * 3)) {
       return true;
     }
     return false;
