@@ -18,7 +18,7 @@ docker run \
 --env "LONGITUDE=-104.990250" \
 --volume /sys:/sys \
 --volume garage-config:/config \
-bmoorman/garage:latest
+bmoorman/garage:armhf-latest
 ```
 
 ### Docker Compose
@@ -30,7 +30,7 @@ services:
     container_name: memcached
 
   garage:
-    image: bmoorman/garage:latest
+    image: bmoorman/garage:armhf-latest
     container_name: garage
     depends_on:
       - memcached
