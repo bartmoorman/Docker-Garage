@@ -14,7 +14,7 @@ $garage = new Garage(true, false, false, true);
 <?php require_once('include.css'); ?>
     <style>
       input.id-digit {
-        width: 42px;
+        width: 38px;
         height: 52px;
         font-size: 32px;
       }
@@ -32,7 +32,7 @@ $garage = new Garage(true, false, false, true);
             <div class='form-row justify-content-center'>
 <?php
 for ($i=0; $i<6; $i++) {
-  echo "              <div class='form-group my-2 p-0'><input class='form-control bg-secondary text-center text-white p-0 id-digit' size='1' disabled></div>" . PHP_EOL;
+  echo "              <div class='form-group mx-1 my-2 p-0'><input class='form-control bg-secondary text-center text-white p-0 id-digit' size='1' disabled></div>" . PHP_EOL;
 }
 ?>
             </div>
