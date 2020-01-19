@@ -19,7 +19,7 @@ if [ ! -d /config/sessions ]; then
 fi
 
 if [ ! -d /config/httpd/ssl ]; then
-    mkdir -p /config/httpd/ssl
+    install -d /config/httpd/ssl
     ln -sf /etc/ssl/apache2/server.pem /config/httpd/ssl/garage.crt
     ln -sf /etc/ssl/apache2/server.key /config/httpd/ssl/garage.key
 fi
