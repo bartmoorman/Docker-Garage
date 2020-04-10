@@ -2,6 +2,7 @@
 date_default_timezone_set(getenv('TZ'));
 
 class Garage {
+  public $appName = 'Garage';
   private $dbFile = '/config/garage.db';
   private $dbConn;
   private $memcachedHost;

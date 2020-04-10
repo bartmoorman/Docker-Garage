@@ -8,12 +8,13 @@ $sunset = date('h:i A', date_sunset(time(), SUNFUNCS_RET_TIMESTAMP, $garage->ast
 <!DOCTYPE html>
 <html lang='en'>
   <head>
-    <title>Garage - Index</title>
+    <title><?php echo $garage->appName ?> - Index</title>
     <meta charset='utf-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no'>
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name='apple-mobile-web-app-capable' content='yes'>
+    <meta name='apple-mobile-web-app-title' content='<?php echo $garage->appName ?>'>
+    <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent'>
+    <link rel='apple-touch-icon' sizes='180x180' href='apple-touch-icon.png'>
 <?php require_once('include.css'); ?>
     <style>
       nav.navbar {
