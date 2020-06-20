@@ -590,7 +590,7 @@ EOQ;
         if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 1)) {
           if ($user = $this->getObjectDetails('user', $_SESSION['user_id'])) {
             $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
-            $message = ['body' => sprintf('Garage was %s by %s (user_id: %u)', $status, $user_name, $user['user_id'])];
+            $message = ['body' => sprintf('%s was %s by %s (user_id: %u)', $this->appName, $status, $user_name, $user['user_id'])];
             msg_send($this->queueConn, 1, $message, true, false);
           }
           return true;
