@@ -30,7 +30,7 @@ $sunset = date('h:i A', date_sunset(time(), SUNFUNCS_RET_TIMESTAMP, $garage->ast
 <?php
 if ($garage->isConfigured('sensor')) {
   echo "          <div class='modal-header'>" . PHP_EOL;
-  echo "            <h4 class='modal-title text-muted mx-auto'><?php echo $garage->appName ?> is <strong class='text-secondary id-position'>LOADING</strong></h4>" . PHP_EOL;
+  echo "            <h4 class='modal-title text-muted mx-auto'>{$garage->appName} is <strong class='text-secondary id-position'>LOADING</strong></h4>" . PHP_EOL;
   echo "          </div>" . PHP_EOL;
 }
 
