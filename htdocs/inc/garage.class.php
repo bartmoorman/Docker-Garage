@@ -6,6 +6,7 @@ class Garage {
   private $dbFile = '/config/garage.db';
   private $dbConn;
   private $memcachedHost;
+  private $memcachedPort;
   public $memcachedConn;
   private $queueKey = 8440;
   public $queueSize = 512;
@@ -14,6 +15,7 @@ class Garage {
   public $serverURL;
   private $devices = ['opener' => null, 'sensor' => null];
   private $gpioValue = '/sys/class/gpio/gpio%u/value';
+  private $buttonLength;
   public $astro = [];
   public $pageLimit = 20;
 
@@ -37,7 +39,8 @@ class Garage {
       $this->initDb();
     }
 
-    $this->memcachedHost = getenv('MEMCACHED_HOST');
+    $this->memcachedHost = getenv('MEMCACHED_HOST') ?: 'memcached';
+    $this->memcachedPort = getenv('MEMCACHED_PORT') ?: 11211;
     $this->connectMemcached();
 
     $this->connectQueue();
@@ -66,6 +69,8 @@ class Garage {
         $this->devices[$device] = substr($env, 0, $pos);
       }
     }
+
+    $this->buttonLength = getenv('BUTTON_LENGTH') ?: 1;
 
     $this->astro['latitude'] = getenv('LATITUDE') ?: ini_get('date.default_latitude');
     $this->astro['longitude'] = getenv('LONGITUDE') ?: ini_get('date.default_longitude');
@@ -138,7 +143,7 @@ EOQ;
 
   private function connectMemcached() {
     if ($this->memcachedConn = new Memcached()) {
-      $this->memcachedConn->addServer($this->memcachedHost, 11211);
+      $this->memcachedConn->addServer($this->memcachedHost, $this->memcachedPort);
       return true;
     }
     return false;
@@ -586,7 +591,7 @@ EOQ;
         $status = 'ACTIVATED';
       }
       if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 0)) {
-        usleep(750000);
+        usleep($this->buttonLength * 1000000);
         if (file_put_contents(sprintf($this->gpioValue, $this->devices[$device]), 1)) {
           if ($user = $this->getObjectDetails('user', $_SESSION['user_id'])) {
             $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];

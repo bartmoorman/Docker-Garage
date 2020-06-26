@@ -1,17 +1,4 @@
 #!/bin/sh
-for PIN in ${OPENER_PIN} ${SENSOR_PIN}; do
-    if [ "${PIN%:*}" != "${PIN#*:}" ]; then
-      if [ ! -L /sys/class/gpio/gpio${PIN%:*} ]; then
-        echo ${PIN%:*} > /sys/class/gpio/export
-      fi
-
-      echo ${PIN#*:} > /sys/class/gpio/gpio${PIN%:*}/direction
-    fi
-done
-
-groupadd -fg $(stat -c '%g' /sys/class/gpio/) gpio
-usermod -aG gpio apache
-
 chown apache: /config
 
 if [ ! -d /config/sessions ]; then
@@ -35,6 +22,20 @@ if [ -f ${pidfile} ]; then
 elif [ ! -d /var/run/apache2 ]; then
     mkdir -p /var/run/apache2
 fi
+
+for PIN in "${OPENER_PIN} high" "${SENSOR_PIN} in"; do
+    GPIO=(${PIN})
+    if [ ${#GPIO[@]} -eq 2 ]; then
+      if [ ! -L /sys/class/gpio/gpio${GPIO[0]} ]; then
+        echo ${GPIO[0]} > /sys/class/gpio/export
+      fi
+
+      echo ${GPIO[1]} > /sys/class/gpio/gpio${GPIO[0]}/direction
+    fi
+done
+
+groupadd -fg $(stat -c '%g' /sys/class/gpio/) gpio
+usermod -aG gpio apache
 
 $(which su) \
     -c $(which schedule.php) \
