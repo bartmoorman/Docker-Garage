@@ -24,13 +24,13 @@ elif [ ! -d /var/run/apache2 ]; then
 fi
 
 for PIN in "${OPENER_PIN} high" "${SENSOR_PIN} in"; do
-    GPIO=(${PIN})
-    if [ ${#GPIO[@]} -eq 2 ]; then
-      if [ ! -L /sys/class/gpio/gpio${GPIO[0]} ]; then
-        echo ${GPIO[0]} > /sys/class/gpio/export
+    set -- ${PIN}
+    if [ ${#} -eq 2 ]; then
+      if [ ! -L /sys/class/gpio/gpio${1} ]; then
+        echo ${1} > /sys/class/gpio/export
       fi
 
-      echo ${GPIO[1]} > /sys/class/gpio/gpio${GPIO[0]}/direction
+      echo ${2} > /sys/class/gpio/gpio${1}/direction
     fi
 done
 

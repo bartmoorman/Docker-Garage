@@ -64,10 +64,7 @@ class Garage {
     $this->serverURL = sprintf('%s://%s', $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? $_SERVER['REQUEST_SCHEME'] ?? 'http', getenv('HTTPD_SERVERNAME'));
 
     foreach (array_keys($this->devices) as $device) {
-      $env = getenv(strtoupper($device) . '_PIN');
-      if ($pos = strpos($env, ':')) {
-        $this->devices[$device] = substr($env, 0, $pos);
-      }
+      $this->devices[$device] = getenv(strtoupper($device) . '_PIN');;
     }
 
     $this->buttonLength = getenv('BUTTON_LENGTH') ?: 1;
