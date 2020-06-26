@@ -1,5 +1,3 @@
-## This is designed for a Raspberry Pi
-
 ### Docker Run
 ```
 docker run \
