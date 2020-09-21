@@ -16,21 +16,21 @@ pidfile=/var/run/apache2/httpd.pid
 if [ -f ${pidfile} ]; then
     pid=$(cat ${pidfile})
 
-    if [ ! -d /proc/${pid} ] || [[ -d /proc/${pid} && $(basename $(readlink /proc/${pid}/exe)) != 'httpd' ]]; then
-      rm ${pidfile}
+    if [ ! -d /proc/${pid} ] || [ -d /proc/${pid} -a $(basename $(readlink /proc/${pid}/exe)) != 'httpd' ]; then
+        rm ${pidfile}
     fi
 elif [ ! -d /var/run/apache2 ]; then
-    mkdir -p /var/run/apache2
+    install -d /var/run/apache2
 fi
 
 for PIN in "${OPENER_PIN} high" "${SENSOR_PIN} in"; do
     set -- ${PIN}
     if [ ${#} -eq 2 ]; then
-      if [ ! -L /sys/class/gpio/gpio${1} ]; then
-        echo ${1} > /sys/class/gpio/export
-      fi
+        if [ ! -L /sys/class/gpio/gpio${1} ]; then
+            echo ${1} > /sys/class/gpio/export
+        fi
 
-      echo ${2} > /sys/class/gpio/gpio${1}/direction
+        echo ${2} > /sys/class/gpio/gpio${1}/direction
     fi
 done
 
