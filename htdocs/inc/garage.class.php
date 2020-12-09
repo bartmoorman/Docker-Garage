@@ -645,7 +645,7 @@ EOQ;
           } else {
             $status = 'failed';
           }
-          echo date('Y-m-d H:i:s') . " - notification to {$user_name} (user_id: {$user['user_id']}) {$status}: {$message}" . PHP_EOL;
+          echo date('Y-m-d H:i:s') . " - notification to {$user_name} (user_id: {$user['user_id']}) {$status}: {$message['body']}" . PHP_EOL;
         }
       }
       curl_close($ch);
