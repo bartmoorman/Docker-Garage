@@ -27,7 +27,7 @@ class Garage {
       'gc_divisor' => 1000,
       'gc_maxlifetime' => 60 * 60 * 24,
       'cookie_lifetime' => 60 * 60 * 24,
-      'cookie_secure' => $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? $_SERVER['REQUEST_SCHEME'] == 'https' ? true : false,
+      'cookie_secure' => $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? $_SERVER['REQUEST_SCHEME'] ?? 'http' == 'https' ? true : false,
       'cookie_samesite' => 'None',
       'cookie_httponly' => true,
       'use_strict_mode' => true
@@ -638,7 +638,7 @@ EOQ;
       while ($user = $users->fetchArray(SQLITE3_ASSOC)) {
         $user_name = !empty($user['last_name']) ? sprintf('%2$s, %1$s', $user['first_name'], $user['last_name']) : $user['first_name'];
         foreach ($messages as $message) {
-          curl_setopt($ch, CURLOPT_POSTFIELDS, ['user' => $user['pushover_user'], 'token' => $user['pushover_token'], 'message' => $message['body'], 'url' => $message['url'], 'priority' => $user['pushover_priority'], 'retry' => $user['pushover_retry'], 'expire' => $user['pushover_expire'], 'sound' => $user['pushover_sound']]);
+          curl_setopt($ch, CURLOPT_POSTFIELDS, ['user' => $user['pushover_user'], 'token' => $user['pushover_token'], 'message' => $message['body'], 'url' => in_array('url', $message) ? $message['url'] : null, 'priority' => $user['pushover_priority'], 'retry' => $user['pushover_retry'], 'expire' => $user['pushover_expire'], 'sound' => $user['pushover_sound']]);
           curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
           if (curl_exec($ch) !== false && curl_getinfo($ch, CURLINFO_RESPONSE_CODE) == 200) {
             $status = 'successful';
