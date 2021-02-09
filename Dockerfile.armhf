@@ -1,4 +1,4 @@
-FROM bmoorman/alpine:armhf-3.12
+FROM bmoorman/alpine:armhf-3.13
 
 ENV HTTPD_SERVERNAME=localhost \
     HTTPD_PORT=8440
