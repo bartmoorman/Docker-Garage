@@ -169,7 +169,7 @@ for ($priority = -2; $priority <= 2; $priority++) {
           $('form').removeData('user_id').data('func', 'updateUser').trigger('reset');
           $('button.id-modify').removeClass('d-none').removeData('user_id');
           $('button.id-submit').removeClass('btn-success').addClass('btn-info').text('Save');
-          $.get('src/action.php', {"func": "getObjectDetails", "type": "user", "value": $(this).data('user_id')})
+          $.post('src/action.php', {"func": "getObjectDetails", "type": "user", "value": $(this).data('user_id')})
             .done(function(data) {
               if (data.success) {
                 user = data.data;
@@ -199,7 +199,7 @@ for ($priority = -2; $priority <= 2; $priority++) {
 
         $('button.id-modify').click(function() {
           if (confirm(`Want to ${$(this).data('action').toUpperCase()} user ${$(this).data('user_id')}?`)) {
-            $.get('src/action.php', {"func": "modifyObject", "action": $(this).data('action'), "type": "user_id", "value": $(this).data('user_id')})
+            $.post('src/action.php', {"func": "modifyObject", "action": $(this).data('action'), "type": "user_id", "value": $(this).data('user_id')})
               .done(function(data) {
                 if (data.success) {
                   location.reload();
