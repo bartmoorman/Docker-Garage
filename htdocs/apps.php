@@ -102,7 +102,7 @@ foreach ($garage->getObjects('apps') as $app) {
           $('input.id-token').removeAttr('placeholder').prop('required', true);
           $('button.id-modify').removeClass('d-none').removeData('app_id');
           $('button.id-submit').removeClass('btn-success').addClass('btn-info').text('Save');
-          $.post('src/action.php', {"func": "getObjectDetails", "type": "app", "value": $(this).data('app_id')})
+          $.get('src/action.php', {"func": "getObjectDetails", "type": "app", "value": $(this).data('app_id')})
             .done(function(data) {
               if (data.success) {
                 app = data.data;
@@ -123,7 +123,7 @@ foreach ($garage->getObjects('apps') as $app) {
 
         $('button.id-modify').click(function() {
           if (confirm(`Want to ${$(this).data('action').toUpperCase()} app ${$(this).data('app_id')}?`)) {
-            $.post('src/action.php', {"func": "modifyObject", "action": $(this).data('action'), "type": "app_id", "value": $(this).data('app_id')})
+            $.get('src/action.php', {"func": "modifyObject", "action": $(this).data('action'), "type": "app_id", "value": $(this).data('app_id')})
               .done(function(data) {
                 if (data.success) {
                   location.reload();

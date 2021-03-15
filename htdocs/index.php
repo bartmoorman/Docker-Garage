@@ -55,7 +55,7 @@ echo "          </div>" . PHP_EOL;
         var activate = {"class": "btn-outline-info"};
 
         function getPosition() {
-          $.post('src/action.php', {"func": "getPosition", "device": "sensor"})
+          $.get('src/action.php', {"func": "getPosition", "device": "sensor"})
             .done(function(data) {
               if (data.success) {
                 switch (data.data) {
@@ -103,7 +103,7 @@ echo "          </div>" . PHP_EOL;
 
         $('button.id-activate').click(function() {
           $('button.id-activate').prop('disabled', true);
-          $.post('src/action.php', {"func": "doActivate", "device": $(this).data('device')})
+          $.get('src/action.php', {"func": "doActivate", "device": $(this).data('device')})
             .done(function(data) {
               if (data.success) {
                 alert('Success!');
