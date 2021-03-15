@@ -103,7 +103,7 @@ echo "          </div>" . PHP_EOL;
 
         $('button.id-activate').click(function() {
           $('button.id-activate').prop('disabled', true);
-          $.get('src/action.php', {"func": "doActivate", "device": $(this).data('device')})
+          $.post('src/action.php', {"func": "doActivate", "device": $(this).data('device')})
             .done(function(data) {
               if (data.success) {
                 alert('Success!');
