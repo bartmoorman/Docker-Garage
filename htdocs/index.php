@@ -24,6 +24,7 @@ $sunset = date('h:i A', date_sunset(time(), SUNFUNCS_RET_TIMESTAMP, $garage->ast
   </head>
   <body>
 <?php require_once('header.php'); ?>
+    <div class='alert collapse'></div>
     <div class='modal fade'>
       <div class='modal-dialog modal-sm modal-dialog-centered'>
         <div class='modal-content'>
@@ -86,7 +87,7 @@ echo "          </div>" . PHP_EOL;
               }
             })
             .fail(function(jqxhr, textStatus, errorThrown) {
-              if (jqxhr.status == 403) {
+              if (jqxhr.status == 401) {
                 location.reload();
               } else {
                 console.log(`getPosition failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
@@ -106,13 +107,17 @@ echo "          </div>" . PHP_EOL;
           $.post('src/action.php', {"func": "doActivate", "device": $(this).data('device')})
             .done(function(data) {
               if (data.success) {
-                alert('Success!');
+                alert = {"text": "Success!", "class": "alert-success"};
               } else {
-                alert('Failed!');
+                alert = {"text": "Failed!", "class": "alert-warning"};
               }
+              $('div.alert').text(`${alert.text}`).toggleClass(`${alert.class}`).collapse('show');
+              setTimeout(function() {
+                $('div.alert').text('').toggleClass(`${alert.class}`).collapse('hide');
+              }, 5000);
             })
             .fail(function(jqxhr, textStatus, errorThrown) {
-              if (jqxhr.status == 403) {
+              if (jqxhr.status == 401) {
                 location.reload();
               } else {
                 console.log(`doActivate failed: ${jqxhr.status} (${jqxhr.statusText}), ${textStatus}, ${errorThrown}`);
