@@ -24,7 +24,9 @@ $sunset = date('h:i A', date_sunset(time(), SUNFUNCS_RET_TIMESTAMP, $garage->ast
   </head>
   <body>
 <?php require_once('header.php'); ?>
-    <div class='alert collapse'></div>
+    <div class='alert text-center collapse'>
+      <h4></h4>
+    </div>
     <div class='modal fade'>
       <div class='modal-dialog modal-sm modal-dialog-centered'>
         <div class='modal-content'>
@@ -62,7 +64,7 @@ echo "          </div>" . PHP_EOL;
                 switch (data.data) {
                   case '0':
                     if (position.state != 'open') {
-                      $('strong.id-position').text('OPEN').toggleClass(`${position.class} text-warning`);
+                      $('strong.id-position').toggleClass(`${position.class} text-warning`).text('OPEN');
                       $('button.id-activate').toggleClass(`${activate.class} btn-outline-success`).children('h2').text('CLOSE');
                       position = {"state": "open", "class": "text-warning"};
                       activate = {"class": "btn-outline-success"};
@@ -70,7 +72,7 @@ echo "          </div>" . PHP_EOL;
                     break;
                   case '1':
                     if (position.state != 'closed') {
-                      $('strong.id-position').text('CLOSED').toggleClass(`${position.class} text-success`);
+                      $('strong.id-position').toggleClass(`${position.class} text-success`).text('CLOSED');
                       $('button.id-activate').toggleClass(`${activate.class} btn-outline-warning`).children('h2').text('OPEN');
                       position = {"state": "closed", "class": "text-success"};
                       activate = {"class": "btn-outline-warning"};
@@ -78,7 +80,7 @@ echo "          </div>" . PHP_EOL;
                     break;
                   default:
                     if (position.state != 'unknown') {
-                      $('strong.id-position').text('UNKNOWN').toggleClass(`${position.class} text-danger`);
+                      $('strong.id-position').toggleClass(`${position.class} text-danger`).text('UNKNOWN');
                       $('button.id-activate').toggleClass(`${activate.class} btn-outline-info`).children('h2').text('ACTIVATE');
                       position = {"state": "unknown", "class": "text-danger"};
                       activate = {"class": "btn-outline-info"};
@@ -111,10 +113,12 @@ echo "          </div>" . PHP_EOL;
               } else {
                 alert = {"text": "Failed!", "class": "alert-warning"};
               }
-              $('div.alert').text(`${alert.text}`).toggleClass(`${alert.class}`).collapse('show');
+              $('div.alert').toggleClass(`${alert.class}`).children('h4').text(`${alert.text}`);
+              $('div.alert').collapse('show');
               setTimeout(function() {
-                $('div.alert').text('').toggleClass(`${alert.class}`).collapse('hide');
-              }, 5000);
+                $('div.alert').collapse('hide');
+                $('div.alert').toggleClass(`${alert.class}`).children('h4').empty();
+              }, 5 * 1000);
             })
             .fail(function(jqxhr, textStatus, errorThrown) {
               if (jqxhr.status == 401) {
