@@ -17,10 +17,10 @@ RUN apk add --no-cache \
     php7-session \
     php7-sqlite3 \
     php7-sysvmsg \
- && ln --symbolic --force /dev/stderr /var/log/apache2/error.log \
- && ln --symbolic --force /dev/stderr /var/log/apache2/ssl_error.log \
- && ln --symbolic --force /dev/stdout /var/log/apache2/access.log \
- && ln --symbolic --force /dev/stdout /var/log/apache2/ssl_access.log
+ && ln -sf /dev/stderr /var/log/apache2/error.log \
+ && ln -sf /dev/stderr /var/log/apache2/ssl_error.log \
+ && ln -sf /dev/stdout /var/log/apache2/access.log \
+ && ln -sf /dev/stdout /var/log/apache2/ssl_access.log
 
 COPY apache2/ /etc/apache2/
 COPY htdocs/ /var/www/localhost/htdocs/
