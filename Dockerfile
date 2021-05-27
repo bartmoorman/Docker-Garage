@@ -16,7 +16,7 @@ RUN apk add --no-cache \
     php7-redis \
     php7-session \
     php7-sqlite3 \
-    php7-sysvmsg
+    php7-sysvmsg \
  && ln --symbolic --force /dev/stderr /var/log/apache2/error.log \
  && ln --symbolic --force /dev/stderr /var/log/apache2/ssl_error.log \
  && ln --symbolic --force /dev/stdout /var/log/apache2/access.log \
